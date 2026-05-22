@@ -1,174 +1,236 @@
-<!-- Map Section -->
-		<!-- <div class="map-section">
-			<div class="contact-map-area">
-				<iframe class="contact-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2689.961936781822!2d-122.34013238480624!3d47.60742979591455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x54906ab3cbba9c83%3A0x548849e16a192f92!2s1301%202nd%20Ave%20%232600%2C%20Seattle%2C%20WA%2098101%2C%20USA!5e0!3m2!1sen!2sng!4v1626796438815!5m2!1sen!2sng" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
-			</div>
-		</div> -->
-		<!-- End Map Section -->
-		   <!-- Main Footer -->
-           <style>
-       .footer-widget * {
-           color: white !important;
-       }
+<!-- end ft-page -->
+</div>
 
-       .main-footer {
-           background-color: #1F1B44;
-       }
-   </style>
-   <footer class="main-footer">
-       <div class="auto-container">
-           <!--Widgets Section-->
-           <div class="widgets-section">
-               <div class="row clearfix">
-                   <!-- Column -->
-                   <div class="big-column col-lg-6 col-md-12 col-sm-6 col-12">
-                       <div class="row clearfix">
-                           <!-- Footer Column -->
-                           <div class="footer-column col-lg-6 col-md-6 col-sm-12">
-                               <div class="footer-widget logo-widget">
-                                 
-                                   <div class="call">
-                                       Call us directly
-                                       <a class="phone" href="#">+<?= $page['url_tel'] ?></a>
-                                       <a class="email" href="mailto:<?= $page['url_email'] ?>"><?= $page['url_email'] ?></a>
-                                   </div>
-                                    
-                                <div id="google_translate_element" style="height:0px!important;">
-                                </div>
-                          
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer class="ft-footer" aria-label="Site footer">
+  <div class="ft-footer-inner">
+    <div class="ft-footer-top">
 
-                               </div>
+      <!-- Brand -->
+      <div class="ft-footer-brand">
+        <a href="<?= $web_url ?>/" class="ft-logo" aria-label="<?= htmlspecialchars($pageTitle) ?> home">
+          <img src="<?= $web_url ?>/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?> logo" />
+          <span class="ft-logo-text"><?= htmlspecialchars($pageTitle) ?></span>
+        </a>
+        <p>Modern banking built for speed, security, and simplicity. Trusted by millions worldwide.</p>
+        <div class="ft-footer-social">
+          <a href="#" aria-label="Twitter"><i class="ri-twitter-x-line"></i></a>
+          <a href="#" aria-label="Facebook"><i class="ri-facebook-line"></i></a>
+          <a href="#" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="ri-linkedin-line"></i></a>
+        </div>
+      </div>
 
-                           </div>
+      <!-- Company -->
+      <div class="ft-footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="<?= $web_url ?>/p/about.php">About Us</a></li>
+          <li><a href="<?= $web_url ?>/p/contact.php">Contact</a></li>
+          <li><a href="<?= $web_url ?>/p/about.php">Careers</a></li>
+          <li><a href="<?= $web_url ?>/p/privacy-policy.php">Privacy Policy</a></li>
+        </ul>
+      </div>
 
+      <!-- Personal -->
+      <div class="ft-footer-col">
+        <h5>Personal</h5>
+        <ul>
+          <li><a href="<?= $web_url ?>/p/ultimate-checking.php">Checking</a></li>
+          <li><a href="<?= $web_url ?>/p/health-savings-account.php">Health Savings</a></li>
+          <li><a href="<?= $web_url ?>/p/individual-retirement-account.php">Retirement (IRA)</a></li>
+          <li><a href="<?= $web_url ?>/p/personal-loans.php">Personal Loans</a></li>
+        </ul>
+      </div>
 
-                           <!-- Footer Column -->
-                           <div class="footer-column col-lg-6 col-md-6 col-sm-12">
-                               <div class="footer-widget links-widget">
-                                   <h5>Company</h5>
-                                   <ul class="list-link">
-                                       <li><a href="<?= $web_url ?>/p/about.php">About Us</a></li>
-                                       <li><a href="<?= $web_url ?>/p/working-capital-loans.php">Working Loans</a></li>
-                                       <li><a href="<?= $web_url ?>/p/ultimate-checking.php">Ultimate Checking</a></li>
-                                       <!-- <li><a href="<?= $web_url ?>/p/business-term-loans">Business Saving</a></li>
-                                       <li><a href="<?= $web_url ?>/p/online-banking">Online Banking Us</a></li> -->
-                                   </ul>
-                               </div>
-                           </div>
-                       </div>
-                   </div>
+      <!-- Business -->
+      <div class="ft-footer-col">
+        <h5>Business</h5>
+        <ul>
+          <li><a href="<?= $web_url ?>/p/business-essential-checking.php">Checking</a></li>
+          <li><a href="<?= $web_url ?>/p/business-savings-account.php">Savings</a></li>
+          <li><a href="<?= $web_url ?>/p/working-capital-loans.php">Working Capital</a></li>
+          <li><a href="<?= $web_url ?>/p/business-term-loans.php">Term Loans</a></li>
+        </ul>
+      </div>
 
-                   <!-- Column -->
-                   <div class="big-column col-lg-6 col-md-12 col-sm-6 col-12">
-                       <div class="row clearfix">
-                           <!-- Footer Column -->
-                           <div class="footer-column col-lg-6 col-md-6 col-sm-12">
-                               <div class="footer-widget links-widget">
-                                   <h5>Quick Links</h5>
-                                   <ul class="list-link">
-                                       <li><a href="<?= $web_url ?>/p/business-savings-account.php">Business Account</a></li>
-                                       <li><a href="<?= $web_url ?>/p/lost-cards.php">Lost Card</a></li>
-                                       <li><a href="<?= $web_url ?>/p/health-savings-account.php">Health Savings</a></li>
-                                       <!-- <li><a href="<?= $web_url ?>/p/home-mortgage-loans">Home Mortgage</a></li>
-                                       <li><a href="<?= $web_url ?>/p/wire-transfers">Wire Transfers</a></li> -->
-                                   </ul>
-                               </div>
-                           </div>
+      <!-- Help -->
+      <div class="ft-footer-col">
+        <h5>Help</h5>
+        <ul>
+          <li><a href="<?= $web_url ?>/p/online-banking.php">Online Banking</a></li>
+          <li><a href="<?= $web_url ?>/p/wire-transfers.php">Wire Transfers</a></li>
+          <li><a href="<?= $web_url ?>/p/lost-cards.php">Lost Cards</a></li>
+          <li><a href="<?= $web_url ?>/p/contact.php">Support</a></li>
+        </ul>
+      </div>
 
-                           <!-- Footer Column -->
-                           <div class="footer-column col-lg-6 col-md-6 col-sm-12">
-                               <div class="footer-widget newsletter-widget">
-                                   <h5>Our Newsletter</h5>
-                                   <div class="text">
-                                       Subscribe to our newsletter and we will inform you about
-                                       latest updates and offers
-                                   </div>
-                                   <!-- Newsletter Form -->
-                                   <!-- <div class="newsletter-form">
-                                       <form method="post">
-                                           <div class="form-group">
-                                               <input type="email" name="email" value="" placeholder="Email Address..." required />
-                                               <button type="submit" class="theme-btn icofont-arrow-right"></button>
-                                           </div>
-                                       </form>
-                                   </div> -->
-                               </div>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-           </div>
+    </div>
 
-           <!-- Footer Bottom -->
-           <div class="footer-bottom">
-               <div class="auto-container">
-                   <div class="bottom-inner">
-                       <div class="row clearfix">
-                           <div class="col-lg-8 col-md-12 col-sm-12">
-                               <div class="copyright">
-                                   © 2022 <strong><?= $pageTitle ?></strong>
-                               </div>
-                           </div>
+    <div class="ft-footer-bottom">
+      <p class="ft-footer-copy">© <?= date('Y') ?> <?= htmlspecialchars($pageTitle) ?>. All rights reserved. FDIC Insured.</p>
+      <div class="ft-footer-legal">
+        <a href="<?= $web_url ?>/p/privacy-policy.php">Privacy</a>
+        <a href="<?= $web_url ?>/p/privacy-policy.php">Terms</a>
+        <a href="<?= $web_url ?>/p/privacy-policy.php">Security</a>
+        <a href="<?= $web_url ?>/p/privacy-policy.php">Compliance</a>
+      </div>
+    </div>
 
-                           <div class="col-lg-4 col-md-12 col-sm-12">
-                               <ul class="social-nav">
-                                   <li>
-                                       <a href="#" class="icofont-twitter"></a>
-                                   </li>
-                                   <li>
-                                       <a href="#" class="icofont-facebook"></a>
-                                   </li>
-                                   <li>
-                                       <a href="#" class="icofont-instagram"></a>
-                                   </li>
-                               </ul>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </footer>	</div>
-	<!--End pagewrapper-->
+  </div>
+</footer>
 
+<!-- Scroll to Top -->
+<button class="ft-scroll-top" id="ftScrollTop" aria-label="Scroll to top">
+  <i class="ri-arrow-up-line"></i>
+</button>
 
-
-	<!-- Scroll To Top -->
-	<div class="scroll-to-top scroll-to-target" data-target="html">
-		<span class="fa fa-arrow-circle-up"></span>
-	</div>
-
-	<script src="<?= $web_url ?>/front/js/jquery.js"></script>
+<?php if (empty($isHomePage)): ?>
+<!-- Legacy JS for inner pages -->
+<script src="<?= $web_url ?>/front/js/jquery.js"></script>
 <script src="<?= $web_url ?>/front/js/popper.min.js"></script>
 <script src="<?= $web_url ?>/front/js/bootstrap.min.js"></script>
-<script src="<?= $web_url ?>/front/js/jquery.mCustomScrollbar.concat.min.js"></script>
-<script src="<?= $web_url ?>/front/js/jquery.fancybox.js"></script>
-<script src="<?= $web_url ?>/front/js/appear.js"></script>
 <script src="<?= $web_url ?>/front/js/owl.js"></script>
 <script src="<?= $web_url ?>/front/js/wow.js"></script>
-<script src="<?= $web_url ?>/front/js/validate.js"></script>
+<script src="<?= $web_url ?>/front/js/appear.js"></script>
+<script src="<?= $web_url ?>/front/js/jquery.fancybox.js"></script>
 <script src="<?= $web_url ?>/front/js/jquery-ui.js"></script>
-<script src="<?= $web_url ?>/front/js/script.js"></script>
+<script src="<?= $web_url ?>/front/js/validate.js"></script>
+<script>
+(function(){
+  "use strict";
+  if(typeof jQuery !== 'undefined') {
+    jQuery(document).ready(function($){
+      /* Scroll to top */
+      $(window).on('scroll', function(){
+        if($(window).scrollTop() > 100){
+          $('#ftScrollTop').css('display','flex');
+        } else {
+          $('#ftScrollTop').css('display','none');
+        }
+      });
+      /* OWL carousels on inner pages */
+      if($('.sponsors-carousel').length){
+        $('.sponsors-carousel').owlCarousel({items:5,loop:true,autoplay:true,margin:30,nav:false,dots:false,responsive:{0:{items:2},576:{items:3},768:{items:4},992:{items:5}}});
+      }
+    });
+  }
+})();
+</script>
+<?php endif; ?>
 
- <script language="javascript">
-document.onmousedown=disableclick;
-status="Right Click Disabled";
-Function disableclick(e)
-{
-  if(event.button==2)
-   {
-     alert(status);
-     return false;	
-   }
-}
+<?= $page['livechat'] ?? '' ?>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script>
+(function () {
+  "use strict";
+
+  /* ── Navbar scroll effect ── */
+  var nav = document.getElementById('ftNav');
+  var scrollBtn = document.getElementById('ftScrollTop');
+
+  function onScroll() {
+    if (window.scrollY > 40) {
+      nav.classList.add('scrolled');
+      scrollBtn.classList.add('visible');
+    } else {
+      nav.classList.remove('scrolled');
+      scrollBtn.classList.remove('visible');
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ── Mobile menu toggle ── */
+  var hamburger = document.getElementById('ftHamburger');
+  var mobileMenu = document.getElementById('ftMobileMenu');
+
+  hamburger.addEventListener('click', function () {
+    var isOpen = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  /* Close mobile menu on link click */
+  mobileMenu.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  });
+
+  /* ── Scroll to top ── */
+  scrollBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ── FAQ Accordion ── */
+  document.querySelectorAll('.ft-accordion-header').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.ft-accordion-item');
+      var isOpen = item.classList.contains('open');
+      /* Close all */
+      document.querySelectorAll('.ft-accordion-item').forEach(function (el) {
+        el.classList.remove('open');
+      });
+      /* Open clicked (if it was closed) */
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* ── Scroll reveal animations ── */
+  var reveals = document.querySelectorAll('.ft-reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  /* ── Animated counters ── */
+  function animateCounter(el) {
+    var target = parseFloat(el.dataset.target);
+    var suffix = el.dataset.suffix || '';
+    var prefix = el.dataset.prefix || '';
+    var duration = 1800;
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var val = target * eased;
+      el.textContent = prefix + (Number.isInteger(target) ? Math.round(val) : val.toFixed(1)) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var counters = document.querySelectorAll('[data-target]');
+  if ('IntersectionObserver' in window) {
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          cio.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function (el) { cio.observe(el); });
+  }
+
+})();
 </script>
 
-  <!--Start of Livechat Script-->
- 
- <?= $page['livechat'] ?>
-
-<!--End of Livechat Script-->
 </body>
-
-
 </html>

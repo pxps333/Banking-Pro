@@ -58,6 +58,5 @@ include_once(__DIR__."/../front/header.php");
            <!-- Main Footer -->
      
 <?php
-include_once("/front/footer.php");
-
+include(__DIR__."/../front/footer.php");
 ?>

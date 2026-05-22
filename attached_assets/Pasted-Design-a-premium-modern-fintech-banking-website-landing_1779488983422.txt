@@ -1,0 +1,149 @@
+Design a premium, modern fintech banking website landing page inspired by the clean aesthetics, premium feel, and UX quality of Revolut, but not a direct copy. The design should feel luxurious, futuristic, secure, and highly trustworthy.
+
+Design Style
+
+* Ultra-modern fintech UI with premium visual polish
+* Dark mode with optional light mode support
+* Soft glow effects, subtle gradients, glassmorphism accents, curved borders, and soft shadows
+* Minimalist yet premium layout with generous spacing
+* Smooth micro-interactions and subtle animations
+* High-end typography with strong visual hierarchy
+* Mobile-first responsive design
+* WCAG accessibility compliant (high contrast, keyboard navigation, ARIA labels, readable font sizing)
+
+Color Direction
+
+* Primary: deep navy/charcoal or black background
+* Accent colors: electric blue, violet, cyan, emerald, or neon gradients
+* Elegant gradients with soft ambient glow
+* Clean white text with muted secondary text
+
+Landing Page Structure
+
+1. Hero Section
+
+* Bold, conversion-focused headline such as:
+    “Banking Designed for the Modern World”
+* Premium fintech subheadline emphasizing speed, global transfers, virtual cards, security, and smart money management
+* High-quality 3D banking app mockup (phone device showcasing dashboard)
+* Floating card UI elements with spending analytics
+* Strong CTAs:
+    * Open Account
+    * Get Started
+    * Download App
+* Trust indicators:
+    * Secure payments
+    * Encryption
+    * Global support
+    * Licensed banking infrastructure
+
+2. Navigation Header
+
+* Sticky transparent navbar with blur effect
+* Logo on left
+* Navigation:
+    * Personal
+    * Business
+    * Features
+    * Pricing
+    * Security
+    * Help
+* Sign In button
+* Open Account CTA button
+
+3. Features Section
+
+Premium fintech cards with icons and hover animation:
+
+* Instant transfers
+* Multi-currency accounts
+* Virtual & physical debit cards
+* Spending analytics
+* Smart budgeting
+* Crypto & investments
+* International payments
+* Savings vaults
+
+4. App Experience Showcase
+
+* Large modern mobile banking dashboard mockups
+* Transaction history preview
+* Expense categorization
+* Spending charts
+* Interactive card management UI
+* Apple Pay / Google Pay integration visuals
+
+5. Security & Trust Section
+
+Emphasize trust heavily:
+
+* Bank-grade encryption
+* Fraud protection
+* Biometric login
+* Real-time spending notifications
+* Instant card freeze/unfreeze
+* Regulatory compliance badges
+* Security-first messaging
+
+6. Social Proof
+
+* User testimonials
+* App ratings
+* “Trusted by millions” section
+* Press mentions and fintech awards
+
+7. Pricing / Plans
+
+Revolut-inspired card pricing comparison:
+
+* Standard
+* Premium
+* Metal
+* Business
+
+Use elegant pricing cards with subtle glow effects.
+
+8. FAQ Section
+
+Modern accordion UI:
+
+* Is my money secure?
+* International transfer fees?
+* Virtual cards?
+* Supported countries?
+* Business accounts?
+
+9. Final CTA Section
+
+Strong conversion section:
+“Take Control of Your Money”
+
+* Download app
+* Open account
+* Join millions of users
+
+10. Footer
+
+* Legal
+* Security
+* Privacy
+* Contact
+* Careers
+* Terms
+* Compliance information
+* Social media links
+
+UI/UX Requirements
+
+* Add breadcrumb support across inner pages
+* Soft rounded corners everywhere
+* Elegant hover states
+* Skeleton loading states
+* Smooth scroll animations
+* Fast loading and optimized performance
+* Accessible forms with clear labels and validation
+* Modern dashboard visual language consistent with the landing page
+* Clean spacing and premium fintech feel
+
+Important Constraint
+Improve aesthetics, layouts, responsiveness, accessibility, and UX only. Do not overcomplicate flows. Keep it professional, secure, and highly conversion-focused like a top-tier digital bank. Make it feel like a billion-dollar fintech product.

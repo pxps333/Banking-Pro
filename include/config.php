@@ -1,28 +1,27 @@
 <?php
 
-define("WEB_TITLE","Dirtyscripts Developer"); // Change Bank Name
-define("WEB_URL","https://demo.dirtyscripts.shop/bankpro"); // Change No "/" Ending splash
-define("WEB_EMAIL","ofofonobs@gmail.com"); // Change Your Website Email
+define("WEB_TITLE","Bankpro Banking");
+define("WEB_URL", (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+define("WEB_EMAIL","support@bankpro.com");
 
 $web_url = WEB_URL;
 
 function dbConnect(){
-    $servername = "localhost";
-    $username = "#";//DATABASE USERNAME
-    $password = "#";//DATABASE PASSWORD
-    $database = "#";//DATABASE NAME
-    $dns = "mysql:host=$servername;dbname=$database";
+    $host = getenv('PGHOST') ?: 'localhost';
+    $port = getenv('PGPORT') ?: '5432';
+    $username = getenv('PGUSER') ?: 'postgres';
+    $password = getenv('PGPASSWORD') ?: '';
+    $database = getenv('PGDATABASE') ?: 'bankpro';
+    $dns = "pgsql:host=$host;port=$port;dbname=$database";
 
     try {
         $conn = new PDO($dns, $username, $password);
-        // set the PDO error mode to exception
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
     } catch(PDOException $e) {
         echo "Connection failed: " . $e->getMessage();
     }
 }
-//return dbConnect();
 
 function inputValidation($value): string
 {

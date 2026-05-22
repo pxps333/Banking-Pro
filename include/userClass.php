@@ -8,15 +8,23 @@ class USER{
     private $conn;
 
     public function add_transaction($data){
+        $conn = dbConnect();
         $amount = $data['amount'];
         $acct_id = $data['acct_id'];
         $image = $data['image'];
         $wallet_address = $data['wallet_address'];
         $crypto_id = $data['crypto_id'];
 
-        $this->conn->prepare("INSERT INTO deposit (amount,user_id,image,wallet_address,crypto_id)VALUES('$amount','$acct_id','$image','$wallet_address','$crypto_id') ");
-
-        return $this->conn->lastInsertId();
+        $stmt = $conn->prepare("INSERT INTO deposit (amount,user_id,image,wallet_address,crypto_id,refrence_id) VALUES(:amount,:acct_id,:image,:wallet_address,:crypto_id,:refrence_id)");
+        $stmt->execute([
+            'amount' => $amount,
+            'acct_id' => $acct_id,
+            'image' => $image,
+            'wallet_address' => $wallet_address,
+            'crypto_id' => $crypto_id,
+            'refrence_id' => uniqid('DEP-')
+        ]);
+        return $conn->lastInsertId('deposit_d_id_seq');
     }
 }
 

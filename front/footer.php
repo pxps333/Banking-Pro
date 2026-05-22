@@ -8,8 +8,8 @@
 
       <!-- Brand -->
       <div class="ft-footer-brand">
-        <a href="<?= $web_url ?>/" class="ft-logo" aria-label="<?= htmlspecialchars($pageTitle) ?> home">
-          <img src="<?= $web_url ?>/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?> logo" />
+        <a href="/" class="ft-logo" aria-label="<?= htmlspecialchars($pageTitle) ?> home">
+          <img src="/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?> logo" />
           <span class="ft-logo-text"><?= htmlspecialchars($pageTitle) ?></span>
         </a>
         <p>Modern banking built for speed, security, and simplicity. Trusted by millions worldwide.</p>
@@ -25,10 +25,10 @@
       <div class="ft-footer-col">
         <h5>Company</h5>
         <ul>
-          <li><a href="<?= $web_url ?>/p/about.php">About Us</a></li>
-          <li><a href="<?= $web_url ?>/p/contact.php">Contact</a></li>
-          <li><a href="<?= $web_url ?>/p/about.php">Careers</a></li>
-          <li><a href="<?= $web_url ?>/p/privacy-policy.php">Privacy Policy</a></li>
+          <li><a href="/p/about.php">About Us</a></li>
+          <li><a href="/p/contact.php">Contact</a></li>
+          <li><a href="/p/about.php">Careers</a></li>
+          <li><a href="/p/privacy-policy.php">Privacy Policy</a></li>
         </ul>
       </div>
 
@@ -36,10 +36,10 @@
       <div class="ft-footer-col">
         <h5>Personal</h5>
         <ul>
-          <li><a href="<?= $web_url ?>/p/ultimate-checking.php">Checking</a></li>
-          <li><a href="<?= $web_url ?>/p/health-savings-account.php">Health Savings</a></li>
-          <li><a href="<?= $web_url ?>/p/individual-retirement-account.php">Retirement (IRA)</a></li>
-          <li><a href="<?= $web_url ?>/p/personal-loans.php">Personal Loans</a></li>
+          <li><a href="/p/ultimate-checking.php">Checking</a></li>
+          <li><a href="/p/health-savings-account.php">Health Savings</a></li>
+          <li><a href="/p/individual-retirement-account.php">Retirement (IRA)</a></li>
+          <li><a href="/p/personal-loans.php">Personal Loans</a></li>
         </ul>
       </div>
 
@@ -47,10 +47,10 @@
       <div class="ft-footer-col">
         <h5>Business</h5>
         <ul>
-          <li><a href="<?= $web_url ?>/p/business-essential-checking.php">Checking</a></li>
-          <li><a href="<?= $web_url ?>/p/business-savings-account.php">Savings</a></li>
-          <li><a href="<?= $web_url ?>/p/working-capital-loans.php">Working Capital</a></li>
-          <li><a href="<?= $web_url ?>/p/business-term-loans.php">Term Loans</a></li>
+          <li><a href="/p/business-essential-checking.php">Checking</a></li>
+          <li><a href="/p/business-savings-account.php">Savings</a></li>
+          <li><a href="/p/working-capital-loans.php">Working Capital</a></li>
+          <li><a href="/p/business-term-loans.php">Term Loans</a></li>
         </ul>
       </div>
 
@@ -58,10 +58,10 @@
       <div class="ft-footer-col">
         <h5>Help</h5>
         <ul>
-          <li><a href="<?= $web_url ?>/p/online-banking.php">Online Banking</a></li>
-          <li><a href="<?= $web_url ?>/p/wire-transfers.php">Wire Transfers</a></li>
-          <li><a href="<?= $web_url ?>/p/lost-cards.php">Lost Cards</a></li>
-          <li><a href="<?= $web_url ?>/p/contact.php">Support</a></li>
+          <li><a href="/p/online-banking.php">Online Banking</a></li>
+          <li><a href="/p/wire-transfers.php">Wire Transfers</a></li>
+          <li><a href="/p/lost-cards.php">Lost Cards</a></li>
+          <li><a href="/p/contact.php">Support</a></li>
         </ul>
       </div>
 
@@ -70,10 +70,10 @@
     <div class="ft-footer-bottom">
       <p class="ft-footer-copy">© <?= date('Y') ?> <?= htmlspecialchars($pageTitle) ?>. All rights reserved. FDIC Insured.</p>
       <div class="ft-footer-legal">
-        <a href="<?= $web_url ?>/p/privacy-policy.php">Privacy</a>
-        <a href="<?= $web_url ?>/p/privacy-policy.php">Terms</a>
-        <a href="<?= $web_url ?>/p/privacy-policy.php">Security</a>
-        <a href="<?= $web_url ?>/p/privacy-policy.php">Compliance</a>
+        <a href="/p/privacy-policy.php">Privacy</a>
+        <a href="/p/privacy-policy.php">Terms</a>
+        <a href="/p/privacy-policy.php">Security</a>
+        <a href="/p/privacy-policy.php">Compliance</a>
       </div>
     </div>
 
@@ -87,31 +87,26 @@
 
 <?php if (empty($isHomePage)): ?>
 <!-- Legacy JS for inner pages -->
-<script src="<?= $web_url ?>/front/js/jquery.js"></script>
-<script src="<?= $web_url ?>/front/js/popper.min.js"></script>
-<script src="<?= $web_url ?>/front/js/bootstrap.min.js"></script>
-<script src="<?= $web_url ?>/front/js/owl.js"></script>
-<script src="<?= $web_url ?>/front/js/wow.js"></script>
-<script src="<?= $web_url ?>/front/js/appear.js"></script>
-<script src="<?= $web_url ?>/front/js/jquery.fancybox.js"></script>
-<script src="<?= $web_url ?>/front/js/jquery-ui.js"></script>
-<script src="<?= $web_url ?>/front/js/validate.js"></script>
+<script src="/front/js/jquery.js"></script>
+<script src="/front/js/popper.min.js"></script>
+<script src="/front/js/bootstrap.min.js"></script>
+<script src="/front/js/owl.js"></script>
+<script src="/front/js/wow.js"></script>
+<script src="/front/js/appear.js"></script>
+<script src="/front/js/jquery.fancybox.js"></script>
+<script src="/front/js/jquery-ui.js"></script>
+<script src="/front/js/validate.js"></script>
 <script>
 (function(){
   "use strict";
-  if(typeof jQuery !== 'undefined') {
-    jQuery(document).ready(function($){
-      /* Scroll to top */
-      $(window).on('scroll', function(){
-        if($(window).scrollTop() > 100){
-          $('#ftScrollTop').css('display','flex');
-        } else {
-          $('#ftScrollTop').css('display','none');
-        }
-      });
-      /* OWL carousels on inner pages */
-      if($('.sponsors-carousel').length){
-        $('.sponsors-carousel').owlCarousel({items:5,loop:true,autoplay:true,margin:30,nav:false,dots:false,responsive:{0:{items:2},576:{items:3},768:{items:4},992:{items:5}}});
+  if (typeof jQuery !== 'undefined') {
+    jQuery(document).ready(function ($) {
+      if ($('.sponsors-carousel').length) {
+        $('.sponsors-carousel').owlCarousel({
+          items: 5, loop: true, autoplay: true, margin: 30,
+          nav: false, dots: false,
+          responsive: { 0:{items:2}, 576:{items:3}, 768:{items:4}, 992:{items:5} }
+        });
       }
     });
   }
@@ -153,7 +148,6 @@
     document.body.style.overflow = isOpen ? 'hidden' : '';
   });
 
-  /* Close mobile menu on link click */
   mobileMenu.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
       mobileMenu.classList.remove('open');
@@ -173,11 +167,9 @@
     btn.addEventListener('click', function () {
       var item = btn.closest('.ft-accordion-item');
       var isOpen = item.classList.contains('open');
-      /* Close all */
       document.querySelectorAll('.ft-accordion-item').forEach(function (el) {
         el.classList.remove('open');
       });
-      /* Open clicked (if it was closed) */
       if (!isOpen) item.classList.add('open');
     });
   });
@@ -202,7 +194,6 @@
   function animateCounter(el) {
     var target = parseFloat(el.dataset.target);
     var suffix = el.dataset.suffix || '';
-    var prefix = el.dataset.prefix || '';
     var duration = 1800;
     var start = null;
     function step(ts) {
@@ -210,13 +201,12 @@
       var progress = Math.min((ts - start) / duration, 1);
       var eased = 1 - Math.pow(1 - progress, 3);
       var val = target * eased;
-      el.textContent = prefix + (Number.isInteger(target) ? Math.round(val) : val.toFixed(1)) + suffix;
+      el.textContent = (Number.isInteger(target) ? Math.round(val) : val.toFixed(1)) + suffix;
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
   }
 
-  var counters = document.querySelectorAll('[data-target]');
   if ('IntersectionObserver' in window) {
     var cio = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -226,7 +216,7 @@
         }
       });
     }, { threshold: 0.5 });
-    counters.forEach(function (el) { cio.observe(el); });
+    document.querySelectorAll('[data-target]').forEach(function (el) { cio.observe(el); });
   }
 
 })();

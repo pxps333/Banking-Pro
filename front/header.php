@@ -22,7 +22,7 @@ $sendMail      = new emailMessage();
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= htmlspecialchars($pageName ?? 'Home') ?> — <?= htmlspecialchars($pageTitle) ?></title>
   <meta name="description" content="<?= htmlspecialchars($pageTitle) ?> — Modern banking for the digital generation. Instant transfers, multi-currency accounts, virtual cards and more." />
-  <link rel="icon" type="image/png" href="<?= $web_url ?>/front/images/favicon.png" />
+  <link rel="icon" type="image/png" href="/front/images/favicon.png" />
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,22 +33,20 @@ $sendMail      = new emailMessage();
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
 
   <!-- Premium CSS (navbar, footer, landing page) -->
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/premium.css" />
+  <link rel="stylesheet" href="/front/css/premium.css" />
 
   <?php if (empty($isHomePage)): ?>
   <!-- Legacy Bootstrap + theme CSS for inner pages -->
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/main.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/responsive.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/fontawesome.min.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/icofont.min.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/themify-icons.css" />
-  <link rel="stylesheet" href="<?= $web_url ?>/front/css/linearicons.css" />
+  <link rel="stylesheet" href="/front/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/front/css/main.css" />
+  <link rel="stylesheet" href="/front/css/responsive.css" />
+  <link rel="stylesheet" href="/front/css/fontawesome.min.css" />
+  <link rel="stylesheet" href="/front/css/icofont.min.css" />
+  <link rel="stylesheet" href="/front/css/themify-icons.css" />
+  <link rel="stylesheet" href="/front/css/linearicons.css" />
   <style>
-    /* Inner page: account for fixed premium navbar height */
     body { padding-top: 70px; }
     .page-banner-image-section { margin-top: 0; }
-    /* Ensure inner page text is visible on dark bg */
     .auto-container, .auto-container h2, .auto-container h3,
     .auto-container h4, .auto-container h5, .auto-container p,
     .sec-title h2, .sec-title .title, .lower-content p,
@@ -64,58 +62,58 @@ $sendMail      = new emailMessage();
   <div class="ft-nav-inner">
 
     <!-- Logo -->
-    <a href="<?= $web_url ?>/" class="ft-logo" aria-label="<?= htmlspecialchars($pageTitle) ?> home">
-      <img src="<?= $web_url ?>/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?> logo" />
+    <a href="/" class="ft-logo" aria-label="<?= htmlspecialchars($pageTitle) ?> home">
+      <img src="/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?> logo" />
       <span class="ft-logo-text"><?= htmlspecialchars($pageTitle) ?></span>
     </a>
 
     <!-- Desktop Nav Links -->
     <ul class="ft-nav-links" role="menubar">
       <li role="none">
-        <a href="<?= $web_url ?>/" role="menuitem">Home</a>
+        <a href="/" role="menuitem">Home</a>
       </li>
       <li role="none">
         <a href="#" role="menuitem" aria-haspopup="true">Personal <i class="ri-arrow-down-s-line"></i></a>
         <ul class="ft-dropdown" role="menu" aria-label="Personal">
-          <li role="none"><a href="<?= $web_url ?>/p/ultimate-checking.php" role="menuitem">Ultimate Checking</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/health-savings-account.php" role="menuitem">Health Savings (HSA)</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/individual-retirement-account.php" role="menuitem">Retirement Account (IRA)</a></li>
+          <li role="none"><a href="/p/ultimate-checking.php" role="menuitem">Ultimate Checking</a></li>
+          <li role="none"><a href="/p/health-savings-account.php" role="menuitem">Health Savings (HSA)</a></li>
+          <li role="none"><a href="/p/individual-retirement-account.php" role="menuitem">Retirement Account (IRA)</a></li>
         </ul>
       </li>
       <li role="none">
         <a href="#" role="menuitem" aria-haspopup="true">Business <i class="ri-arrow-down-s-line"></i></a>
         <ul class="ft-dropdown" role="menu" aria-label="Business">
-          <li role="none"><a href="<?= $web_url ?>/p/business-essential-checking.php" role="menuitem">Essential Checking</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/business-savings-account.php" role="menuitem">Business Savings</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/overdraft-protection-sweeps.php" role="menuitem">Overdraft Protection</a></li>
+          <li role="none"><a href="/p/business-essential-checking.php" role="menuitem">Essential Checking</a></li>
+          <li role="none"><a href="/p/business-savings-account.php" role="menuitem">Business Savings</a></li>
+          <li role="none"><a href="/p/overdraft-protection-sweeps.php" role="menuitem">Overdraft Protection</a></li>
         </ul>
       </li>
       <li role="none">
         <a href="#" role="menuitem" aria-haspopup="true">Loans <i class="ri-arrow-down-s-line"></i></a>
         <ul class="ft-dropdown" role="menu" aria-label="Loans">
-          <li role="none"><a href="<?= $web_url ?>/p/home-mortgage-loans.php" role="menuitem">Home Mortgage</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/personal-loans.php" role="menuitem">Personal Loans</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/working-capital-loans.php" role="menuitem">Working Capital</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/business-term-loans.php" role="menuitem">Business Term Loans</a></li>
+          <li role="none"><a href="/p/home-mortgage-loans.php" role="menuitem">Home Mortgage</a></li>
+          <li role="none"><a href="/p/personal-loans.php" role="menuitem">Personal Loans</a></li>
+          <li role="none"><a href="/p/working-capital-loans.php" role="menuitem">Working Capital</a></li>
+          <li role="none"><a href="/p/business-term-loans.php" role="menuitem">Business Term Loans</a></li>
         </ul>
       </li>
       <li role="none">
         <a href="#" role="menuitem" aria-haspopup="true">Services <i class="ri-arrow-down-s-line"></i></a>
         <ul class="ft-dropdown" role="menu" aria-label="Services">
-          <li role="none"><a href="<?= $web_url ?>/p/online-banking.php" role="menuitem">Online Banking</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/wire-transfers.php" role="menuitem">Wire Transfers</a></li>
-          <li role="none"><a href="<?= $web_url ?>/p/lost-cards.php" role="menuitem">Lost or Stolen Cards</a></li>
+          <li role="none"><a href="/p/online-banking.php" role="menuitem">Online Banking</a></li>
+          <li role="none"><a href="/p/wire-transfers.php" role="menuitem">Wire Transfers</a></li>
+          <li role="none"><a href="/p/lost-cards.php" role="menuitem">Lost or Stolen Cards</a></li>
         </ul>
       </li>
       <li role="none">
-        <a href="<?= $web_url ?>/p/contact.php" role="menuitem">Contact</a>
+        <a href="/p/contact.php" role="menuitem">Contact</a>
       </li>
     </ul>
 
     <!-- Desktop Actions -->
     <div class="ft-nav-actions">
-      <a href="<?= $web_url ?>/login.php" class="ft-btn-ghost">Sign In</a>
-      <a href="<?= $web_url ?>/signup/verify-registration.php" class="ft-btn-primary">Open Account</a>
+      <a href="/login.php" class="ft-btn-ghost">Sign In</a>
+      <a href="/signup/verify-registration.php" class="ft-btn-primary">Open Account</a>
     </div>
 
     <!-- Mobile Hamburger -->
@@ -129,27 +127,27 @@ $sendMail      = new emailMessage();
 <!-- Mobile Menu -->
 <div class="ft-mobile-menu" id="ftMobileMenu" role="navigation" aria-label="Mobile navigation">
   <div class="ft-mobile-section">Personal</div>
-  <a href="<?= $web_url ?>/p/ultimate-checking.php">Ultimate Checking</a>
-  <a href="<?= $web_url ?>/p/health-savings-account.php">Health Savings (HSA)</a>
-  <a href="<?= $web_url ?>/p/individual-retirement-account.php">Retirement Account (IRA)</a>
+  <a href="/p/ultimate-checking.php">Ultimate Checking</a>
+  <a href="/p/health-savings-account.php">Health Savings (HSA)</a>
+  <a href="/p/individual-retirement-account.php">Retirement Account (IRA)</a>
   <div class="ft-mobile-section">Business</div>
-  <a href="<?= $web_url ?>/p/business-essential-checking.php">Essential Checking</a>
-  <a href="<?= $web_url ?>/p/business-savings-account.php">Business Savings</a>
-  <a href="<?= $web_url ?>/p/overdraft-protection-sweeps.php">Overdraft Protection</a>
+  <a href="/p/business-essential-checking.php">Essential Checking</a>
+  <a href="/p/business-savings-account.php">Business Savings</a>
+  <a href="/p/overdraft-protection-sweeps.php">Overdraft Protection</a>
   <div class="ft-mobile-section">Loans</div>
-  <a href="<?= $web_url ?>/p/home-mortgage-loans.php">Home Mortgage</a>
-  <a href="<?= $web_url ?>/p/personal-loans.php">Personal Loans</a>
-  <a href="<?= $web_url ?>/p/working-capital-loans.php">Working Capital</a>
+  <a href="/p/home-mortgage-loans.php">Home Mortgage</a>
+  <a href="/p/personal-loans.php">Personal Loans</a>
+  <a href="/p/working-capital-loans.php">Working Capital</a>
   <div class="ft-mobile-section">Services</div>
-  <a href="<?= $web_url ?>/p/online-banking.php">Online Banking</a>
-  <a href="<?= $web_url ?>/p/wire-transfers.php">Wire Transfers</a>
-  <a href="<?= $web_url ?>/p/contact.php">Contact</a>
+  <a href="/p/online-banking.php">Online Banking</a>
+  <a href="/p/wire-transfers.php">Wire Transfers</a>
+  <a href="/p/contact.php">Contact</a>
   <div class="ft-mobile-divider"></div>
   <div class="ft-mobile-actions">
-    <a href="<?= $web_url ?>/login.php" class="ft-btn-ghost">Sign In</a>
-    <a href="<?= $web_url ?>/signup/verify-registration.php" class="ft-btn-primary">Open Account</a>
+    <a href="/login.php" class="ft-btn-ghost">Sign In</a>
+    <a href="/signup/verify-registration.php" class="ft-btn-primary">Open Account</a>
   </div>
 </div>
 
-<!-- Page wrapper starts -->
+<!-- Page wrapper -->
 <div id="ft-page">

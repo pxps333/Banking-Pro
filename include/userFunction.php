@@ -223,7 +223,7 @@ function userDetails($value){
 //Crypto Name
 function cryptoName($value){
     $conn = dbConnect();
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
     $crypto_id = $_SESSION['crypt'];
     $sql ="SELECT * FROM crypto_currency WHERE id = :crypto_name";
     $stmt = $conn->prepare($sql);

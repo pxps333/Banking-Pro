@@ -1,4 +1,5 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once ('../session.php');
 require_once("config.php");
 $conn = dbConnect();
@@ -70,7 +71,6 @@ if(isset($_POST['pin']) && $_POST['type'] === "dom_tranfer"){
             ]);
 
             if (true) {
-                session_start();
                 $_SESSION['dom_transfer'] = $refrence_id;
                 echo json_encode("success");
 
@@ -152,7 +152,6 @@ if(isset($_POST['pin']) && $_POST['type'] === "wire_transfer"){
             ]);
 
             if (true) {
-                session_start();
                 $_SESSION['wire_transfer'] = $refrence_id;
                 echo json_encode("success");
 

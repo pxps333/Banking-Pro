@@ -751,14 +751,69 @@ if(isset($_POST['regSubmit'])){
                         </div>
 
 
+                        <div id="file-size-error" style="display:none;color:#f87171;font-size:.85rem;margin-bottom:10px;padding:10px 14px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;"></div>
+
                         <div class="form-group clearfix">
                             <a href="javascript:;" class="form-wizard-previous-btn float-left">Previous</a>
                             <!--                            <a href="javascript:;" class="form-wizard-submit float-right">Submit</a>-->
                             <button class="form-wizard-submit float-right btn btn-primary" type="submit"
-                                name="regSubmit">Submit</button>
+                                name="regSubmit" id="regSubmitBtn">Submit</button>
                         </div>
                     </fieldset>
                 </form>
+
+<script>
+(function () {
+    var MAX_BYTES = 8 * 1024 * 1024;
+    var fileFields = ['profile_pic', 'frontID', 'backID'];
+    var errorBox = document.getElementById('file-size-error');
+
+    function checkFileSizes() {
+        var errors = [];
+        fileFields.forEach(function (name) {
+            var input = document.querySelector('input[name="' + name + '"]');
+            if (input && input.files && input.files[0]) {
+                var f = input.files[0];
+                if (f.size > MAX_BYTES) {
+                    var label = name === 'profile_pic' ? 'Profile Image'
+                              : name === 'frontID'    ? 'ID Card Front'
+                              :                         'ID Card Back';
+                    errors.push(label + ' (' + (f.size / 1024 / 1024).toFixed(1) + ' MB) exceeds the 8 MB limit.');
+                }
+            }
+        });
+        return errors;
+    }
+
+    fileFields.forEach(function (name) {
+        var input = document.querySelector('input[name="' + name + '"]');
+        if (input) {
+            input.addEventListener('change', function () {
+                var errs = checkFileSizes();
+                if (errs.length) {
+                    errorBox.innerHTML = '⚠ File too large:<br>' + errs.join('<br>');
+                    errorBox.style.display = 'block';
+                } else {
+                    errorBox.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    var form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            var errs = checkFileSizes();
+            if (errs.length) {
+                e.preventDefault();
+                errorBox.innerHTML = '⚠ Please reduce file sizes before submitting:<br>' + errs.join('<br>');
+                errorBox.style.display = 'block';
+                errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+})();
+</script>
             </div>
         </div>
     </div>

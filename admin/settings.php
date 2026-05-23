@@ -1,6 +1,4 @@
 <?php
-include_once("./layout/header.php");
-
 /* ── Handle AJAX save_settings ── */
 if (isset($_POST['save_settings']) && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
     header('Content-Type: application/json');
@@ -49,6 +47,10 @@ if (isset($_POST['upload_picture']) && isset($_SERVER['HTTP_X_REQUESTED_WITH']))
     exit;
 }
 ?>
+
+include_once("./layout/header.php");
+
+
 
 <!-- ── Custom styles scoped to this page ── -->
 <style>

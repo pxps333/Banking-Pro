@@ -78,6 +78,29 @@ $adminName = $row['firstname']." ".$row['lastname'];
     <script src="./plugins/sweetalerts/promise-polyfill.js"></script>
     <script src="./assets/js/libs/jquery-3.1.1.min.js"></script>
 
+    <style>
+    .bp-brand-logo { display:flex;align-items:center;gap:8px;text-decoration:none;margin:0 10px; }
+    .bp-brand-logo img { height:30px;width:auto;object-fit:contain;filter:drop-shadow(0 0 6px rgba(59,130,246,0.35)); }
+    .bp-brand-logo span { font-size:.88rem;font-weight:700;color:#3b82f6;letter-spacing:-.01em;white-space:nowrap; }
+    .bp-dm-toggle { display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#888ea8;cursor:pointer;font-size:16px;transition:all 0.2s;flex-shrink:0; }
+    .bp-dm-toggle:hover { border-color:rgba(59,130,246,0.4);color:#3b82f6;box-shadow:0 0 12px rgba(59,130,246,0.15); }
+    .bp-dm-toggle .icon-sun { display:none; }
+    .bp-dm-toggle .icon-moon { display:block; }
+    body.bp-dark { background:#070a12 !important;color:#e2e8f0 !important; }
+    body.bp-dark .header-container { background:#0d1117 !important;border-bottom:1px solid rgba(255,255,255,0.07) !important; }
+    body.bp-dark .sidebar-wrapper { background:#0d1117 !important;border-right:1px solid rgba(255,255,255,0.06) !important; }
+    body.bp-dark .main-container { background:#070a12 !important; }
+    body.bp-dark .widget,.bp-dark .card { background:#0d1117 !important;border:1px solid rgba(255,255,255,0.07) !important;color:#e2e8f0 !important; }
+    body.bp-dark .widget-content-area { background:#0d1117 !important;color:#e2e8f0 !important; }
+    body.bp-dark table,body.bp-dark td,body.bp-dark th { color:#e2e8f0 !important; }
+    body.bp-dark .bp-dm-toggle .icon-sun { display:block; }
+    body.bp-dark .bp-dm-toggle .icon-moon { display:none; }
+    </style>
+    <script>
+    (function(){
+      if(localStorage.getItem('bp_theme')==='dark') document.documentElement.style.background='#070a12';
+    })();
+    </script>
 </head>
 <body class="dashboard-analytics">
 
@@ -92,9 +115,10 @@ $adminName = $row['firstname']." ".$row['lastname'];
     <header class="header navbar navbar-expand-sm">
         <ul class="navbar-item flex-row">
             <li class="nav-item theme-logo">
-               <!-- <a href="/dashboard.php">
-                    <img src="../assets/settings/<?=$page['image']?>" class="navbar-logo" alt="logo">
-                </a> -->
+                <a href="./dashboard.php" class="bp-brand-logo">
+                    <img src="../assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?>">
+                    <span><?= htmlspecialchars($pageTitle) ?></span>
+                </a>
             </li>
         </ul>
 
@@ -132,6 +156,12 @@ $adminName = $row['firstname']." ".$row['lastname'];
             <!--    </div>-->
             <!--</li>-->
 
+            <li class="nav-item" style="display:flex;align-items:center;margin-right:8px;">
+                <button class="bp-dm-toggle" id="bpDmToggle" title="Toggle dark/light mode">
+                    <span class="icon-moon">🌙</span>
+                    <span class="icon-sun">☀️</span>
+                </button>
+            </li>
             <li class="nav-item dropdown user-profile-dropdown  order-lg-0 order-1">
              <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img src="../assets/profile/<?=$row['image']?>" alt="admin-profile" class="img-fluid">

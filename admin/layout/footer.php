@@ -148,5 +148,23 @@ $('input').attr('autocomplete', 'off');
 
 <!-- END PAGE LEVEL SCRIPTS -->
 
+
+<script>
+(function(){
+  var DM_KEY = 'bp_theme';
+  function applyDm(m){
+    if(m==='dark'){ document.body.classList.add('bp-dark'); }
+    else { document.body.classList.remove('bp-dark'); }
+    localStorage.setItem(DM_KEY, m);
+  }
+  applyDm(localStorage.getItem(DM_KEY) || 'light');
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('bpDmToggle');
+    if(btn) btn.addEventListener('click', function(){
+      applyDm(document.body.classList.contains('bp-dark') ? 'light' : 'dark');
+    });
+  });
+})();
+</script>
 </body>
 </html>

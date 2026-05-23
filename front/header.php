@@ -112,6 +112,10 @@ $sendMail      = new emailMessage();
 
     <!-- Desktop Actions -->
     <div class="ft-nav-actions">
+      <button class="ft-theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀️</span>
+      </button>
       <a href="/login.php" class="ft-btn-ghost">Sign In</a>
       <a href="/signup/verify-registration.php" class="ft-btn-primary">Open Account</a>
     </div>

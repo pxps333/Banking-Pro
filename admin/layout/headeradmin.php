@@ -41,49 +41,36 @@ ob_start();
     <script src="./assets/js/libs/jquery-3.1.1.min.js"></script>
 
     <!-- END THEME GLOBAL STYLES -->
-    <title>Pin</title>
     <style>
-
-        button{
-            margin:3px;
-        }
-        button{
-            display: inline-block;
-            border:1px solid #0a3bff;
-            color: #0022ff;
-            border-radius: 30px;
-            -webkit-border-radius: 30px;
-            -moz-border-radius: 30px;
-            font-family: Verdana;
-            width: auto;
-            height: auto;
-            font-size: 16px;
-            padding: 10px 17px;
-            background-color: #FCFAF9;
-        }
-        button:hover, button:active{
-            border:1px solid #FFFFFF;
-            color: #FFFDFC;
-            background-color: #FC0000;
-        }
-
-        input[type=text], textarea {
-            -webkit-transition: all 0.30s ease-in-out;
-            -moz-transition: all 0.30s ease-in-out;
-            -ms-transition: all 0.30s ease-in-out;
-            -o-transition: all 0.30s ease-in-out;
-            outline: none;
-            padding: 3px 0px 3px 3px;
-            margin: 5px 1px 3px 0px;
-            border: 1px solid #DDDDDD;
-        }
-
-        input[type=text]:focus, textarea:focus {
-            box-shadow: 0 0 5px rgba(250, 0, 0, 1);
-            padding: 3px 0px 3px 3px;
-            margin: 5px 1px 3px 0px;
-            border: 1px solid rgba(250, 0, 0, 1);
-        }
+        .btn-primary { background: linear-gradient(135deg,#2563eb,#60a5fa) !important; border: none !important; border-radius: 10px !important; font-weight: 600 !important; letter-spacing: 0.01em; box-shadow: 0 4px 18px rgba(59,130,246,0.3) !important; transition: all 0.2s !important; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(59,130,246,0.45) !important; }
+        .bp-dm-toggle { position: fixed; top: 16px; right: 16px; z-index: 9999; width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #94a3b8; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .bp-dm-toggle:hover { border-color: rgba(59,130,246,0.4); color: #3b82f6; box-shadow: 0 0 14px rgba(59,130,246,0.15); }
+        .bp-dm-toggle .icon-sun { display: none; }
+        .bp-dm-toggle .icon-moon { display: block; }
+        body.dm-light .bp-dm-toggle .icon-sun { display: block; }
+        body.dm-light .bp-dm-toggle .icon-moon { display: none; }
+        body.dm-light { background: #f8fafc !important; }
+        body.dm-light .form-content { background: #fff !important; box-shadow: 0 8px 40px rgba(0,0,0,0.08) !important; }
     </style>
+    <script>
+    (function(){
+      var t = localStorage.getItem('bp_theme') || 'dark';
+      if(t === 'light') document.documentElement.classList.add('dm-light-init');
+    })();
+    </script>
 </head>
 <body class="form">
+<button class="bp-dm-toggle" id="bpToggle" title="Toggle dark/light">
+  <span class="icon-moon">🌙</span><span class="icon-sun">☀️</span>
+</button>
+<script>
+(function(){
+  function applyDm(m){ if(m==='light'){document.body.classList.add('dm-light');}else{document.body.classList.remove('dm-light');} localStorage.setItem('bp_theme',m); }
+  applyDm(localStorage.getItem('bp_theme')||'dark');
+  document.addEventListener('DOMContentLoaded',function(){
+    var btn=document.getElementById('bpToggle');
+    if(btn) btn.addEventListener('click',function(){ applyDm(document.body.classList.contains('dm-light')?'dark':'light'); });
+  });
+})();
+</script>

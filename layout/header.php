@@ -93,4 +93,35 @@ $sendMail = new emailMessage();
             border: 1px solid rgba(250, 0, 0, 1);
         }
     </style>
+
+    <style>
+    /* Auth page branding */
+    .bp-auth-logo { display:flex;flex-direction:column;align-items:center;margin-bottom:22px; }
+    .bp-auth-logo img { height:58px;width:auto;object-fit:contain;filter:drop-shadow(0 0 12px rgba(59,130,246,0.28)); }
+    .bp-auth-logo-name { font-size:1.05rem;font-weight:700;color:#3b82f6;letter-spacing:-0.01em;margin-top:6px; }
+    .btn-primary { background:linear-gradient(135deg,#2563eb,#60a5fa) !important;border:none !important;border-radius:10px !important;font-weight:600 !important;box-shadow:0 4px 18px rgba(59,130,246,0.3) !important;transition:all .2s !important; }
+    .btn-primary:hover { transform:translateY(-1px);box-shadow:0 8px 28px rgba(59,130,246,0.45) !important; }
+    .forgot-pass-link { color:#3b82f6 !important;font-weight:600; }
+    .forgot-pass-link:hover { color:#2563eb !important; }
+    /* Dark/light toggle for auth pages */
+    .bp-dm-toggle-auth { position:fixed;top:16px;right:16px;z-index:9999;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+    .bp-dm-toggle-auth:hover { border-color:rgba(59,130,246,0.4);color:#3b82f6;box-shadow:0 0 14px rgba(59,130,246,0.15); }
+    .bp-dm-toggle-auth .icon-sun { display:none; }
+    .bp-dm-toggle-auth .icon-moon { display:block; }
+    body.dm-light { background:#f8fafc !important; }
+    body.dm-light .form-content { background:#fff !important;box-shadow:0 8px 40px rgba(0,0,0,0.08) !important; }
+    body.dm-light .bp-dm-toggle-auth { border-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.04);color:#475569; }
+    body.dm-light .bp-dm-toggle-auth .icon-sun { display:block; }
+    body.dm-light .bp-dm-toggle-auth .icon-moon { display:none; }
+    </style>
+    <script>
+    (function(){
+      function applyDm(m){ if(m==='light'){document.body.classList.add('dm-light');}else{document.body.classList.remove('dm-light');} localStorage.setItem('bp_theme',m); }
+      document.addEventListener('DOMContentLoaded',function(){
+        applyDm(localStorage.getItem('bp_theme')||'dark');
+        var btn=document.getElementById('bpDmToggleAuth');
+        if(btn) btn.addEventListener('click',function(){ applyDm(document.body.classList.contains('dm-light')?'dark':'light'); });
+      });
+    })();
+    </script>
 </head>

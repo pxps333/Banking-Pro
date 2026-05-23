@@ -162,6 +162,25 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  /* ── Dark / Light Mode Toggle ── */
+  var toggleBtn = document.getElementById('themeToggle');
+  function applyTheme(mode) {
+    if (mode === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+    localStorage.setItem('bp_theme', mode);
+  }
+  var savedTheme = localStorage.getItem('bp_theme') || 'dark';
+  applyTheme(savedTheme);
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      var current = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+      applyTheme(current === 'light' ? 'dark' : 'light');
+    });
+  }
+
   /* ── FAQ Accordion ── */
   document.querySelectorAll('.ft-accordion-header').forEach(function (btn) {
     btn.addEventListener('click', function () {

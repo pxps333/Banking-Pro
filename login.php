@@ -105,10 +105,13 @@ toast_alert("error","Invalid login details");
             <div class="form-container">
                 <div class="form-content">
 
+                    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:22px;">
+                        <img src="/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?>" style="height:60px;width:auto;object-fit:contain;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(59,130,246,0.25));">
+                        <span style="font-size:1.05rem;font-weight:700;color:#3b82f6;letter-spacing:-0.01em;"><?= htmlspecialchars($pageTitle) ?></span>
+                    </div>
+
                     <h1 class="">Sign In</h1>
-                   
                     <p class="">Log in to your account to continue.</p>
-                 <!--   <img src="./assets/settings/<?=$page['image']?>" class="navbar-logo" alt="logo" width="20%"> -->
 
                     <form class="text-left" method="POST">
                         <div class="form">
@@ -122,7 +125,7 @@ toast_alert("error","Invalid login details");
                             <div id="password-field" class="field-wrapper input mb-2">
                                 <div class="d-flex justify-content-between">
                                     <label for="password">PASSWORD</label>
-                                    <a href="./signup" class="forgot-pass-link">Create New Account</a>
+                                    <a href="./forgot-password.php" class="forgot-pass-link">Forgot Password?</a>
                                 </div>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                                 <input id="password" name="acct_password" type="password" class="form-control" placeholder="Password">
@@ -132,6 +135,9 @@ toast_alert("error","Invalid login details");
                                 <div class="field-wrapper">
                                     <button type="submit" class="btn btn-primary" name="login" value="">Log In</button>
                                 </div>
+                            </div>
+                            <div style="text-align:center;margin-top:16px;">
+                                <a href="./signup" style="color:#888ea8;font-size:13px;text-decoration:none;font-weight:600;">Don't have an account? <span style="color:#3b82f6;">Create one</span></a>
                             </div>
                         </div>
                     </form>

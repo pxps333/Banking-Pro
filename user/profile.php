@@ -170,17 +170,6 @@ if (!$_SESSION['acct_no']) {
                     </div>
                     <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
                 </a>
-                <div style="height:1px;background:var(--bp-border);margin:0 8px;"></div>
-                <a href="./account-manager.php" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:10px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='var(--bp-surface2)'" onmouseout="this.style.background='transparent'">
-                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="ri-user-star-line" style="color:var(--bp-orange);font-size:16px;"></i>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:.85rem;font-weight:600;color:var(--bp-text);">Account Manager</div>
-                        <div style="font-size:.75rem;color:var(--bp-text3);">View your dedicated account manager</div>
-                    </div>
-                    <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
-                </a>
             </div>
         </div>
 

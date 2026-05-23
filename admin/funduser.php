@@ -22,12 +22,14 @@ if(isset($_POST['credit'])){
     $result = $checkUser->fetch(PDO::FETCH_ASSOC);
 
     $available_balance = $amount + $result['acct_balance'];
+    $avail_new = $amount + $result['avail_balance'];
 
-    $sql = "UPDATE users SET acct_balance=:available_balance WHERE id=:user_id";
+    $sql = "UPDATE users SET acct_balance=:available_balance, avail_balance=:avail_balance WHERE id=:user_id";
     $addUp = $conn->prepare($sql);
     $addUp->execute([
-       'available_balance'=>$available_balance,
-        'user_id'=>$user_id
+       'available_balance' => $available_balance,
+       'avail_balance'     => $avail_new,
+       'user_id'           => $user_id
     ]);
 
 
@@ -92,13 +94,14 @@ else if(isset($_POST['debit'])){
 
 
         $available_balance = ($result['acct_balance'] - $amount);
-//        $amount-=$result['acct_balance'];
+        $avail_new = max(0, $result['avail_balance'] - $amount);
 
-        $sql = "UPDATE users SET acct_balance=:available_balance WHERE id=:user_id";
+        $sql = "UPDATE users SET acct_balance=:available_balance, avail_balance=:avail_balance WHERE id=:user_id";
         $addUp = $conn->prepare($sql);
         $addUp->execute([
             'available_balance' => $available_balance,
-            'user_id' => $user_id
+            'avail_balance'     => $avail_new,
+            'user_id'           => $user_id
         ]);
 
         if (true) {

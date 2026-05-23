@@ -62,19 +62,26 @@ die;
 }
 
 if(isset($_POST['profile_save'])){
-    $acct_no = $_POST['acct_no'];
-    $acct_type = $_POST['acct_type'];
-    $acct_email = $_POST['acct_email'];
-    $acct_dob = $_POST['acct_dob'];
-    $acct_occupation = $_POST['acct_occupation'];
-    $acct_phone = $_POST['acct_phone'];
-    $acct_gender = $_POST['acct_gender'];
+    $acct_no        = $_POST['acct_no'];
+    $acct_type      = $_POST['acct_type'];
+    $acct_email     = $_POST['acct_email'];
+    $acct_dob       = $_POST['acct_dob'];
+    $acct_occupation= $_POST['acct_occupation'];
+    $acct_phone     = $_POST['acct_phone'];
+    $acct_gender    = $_POST['acct_gender'];
     $marital_status = $_POST['marital_status'];
-    $acct_limit = $_POST['acct_limit'];
-    $acct_balance = $_POST['acct_balance'];
-     $acct_cot = $_POST['acct_cot'];
-      $acct_imf = $_POST['acct_imf'];
-       $acct_tax = $_POST['acct_tax'];
+    $acct_limit     = $_POST['acct_limit'];
+    $acct_balance   = $_POST['acct_balance'];
+    $avail_balance  = $_POST['avail_balance'];
+    $loan_balance   = $_POST['loan_balance'];
+    $acct_cot       = $_POST['acct_cot'];
+    $acct_imf       = $_POST['acct_imf'];
+    $acct_tax       = $_POST['acct_tax'];
+    $ssn            = $_POST['ssn'];
+    $country        = $_POST['country'];
+    $state          = $_POST['state'];
+    $acct_address   = $_POST['acct_address'];
+    $acct_currency  = $_POST['acct_currency'];
 
 
 //    if($acct_limit === '5000'){
@@ -89,24 +96,31 @@ if(isset($_POST['profile_save'])){
 //    exit();
 
 
-    $sql = "UPDATE users SET acct_no=:acct_no, acct_type=:acct_type,acct_email=:acct_email,acct_dob=:acct_dob,acct_occupation=:acct_occupation,acct_phone=:acct_phone,acct_gender=:acct_gender,marital_status=:marital_status,acct_limit=:acct_limit,acct_cot=:acct_cot,acct_tax=:acct_tax,acct_imf=:acct_imf,acct_balance=:acct_balance,limit_remain=:limit_remain WHERE id=:id";
+    $sql = "UPDATE users SET acct_no=:acct_no, acct_type=:acct_type, acct_email=:acct_email, acct_dob=:acct_dob, acct_occupation=:acct_occupation, acct_phone=:acct_phone, acct_gender=:acct_gender, marital_status=:marital_status, acct_limit=:acct_limit, acct_cot=:acct_cot, acct_tax=:acct_tax, acct_imf=:acct_imf, acct_balance=:acct_balance, avail_balance=:avail_balance, loan_balance=:loan_balance, limit_remain=:limit_remain, ssn=:ssn, country=:country, state=:state, acct_address=:acct_address, acct_currency=:acct_currency WHERE id=:id";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        'acct_no'=>$acct_no,
-        'acct_type'=>$acct_type,
-        'acct_email'=>$acct_email,
-        'acct_dob'=>$acct_dob,
-        'acct_occupation'=>$acct_occupation,
-        'acct_phone'=>$acct_phone,
-        'acct_gender'=>$acct_gender,
-        'acct_tax'=>$acct_tax,
-        'acct_cot'=>$acct_cot,
-        'acct_imf'=>$acct_imf,
-        'marital_status'=>$marital_status,
-        'acct_limit'=>$limit,
-        'acct_balance'=>$acct_balance,
-        'limit_remain'=>$limiBalance,
-        'id'=>$id
+        'acct_no'       => $acct_no,
+        'acct_type'     => $acct_type,
+        'acct_email'    => $acct_email,
+        'acct_dob'      => $acct_dob,
+        'acct_occupation'=> $acct_occupation,
+        'acct_phone'    => $acct_phone,
+        'acct_gender'   => $acct_gender,
+        'acct_tax'      => $acct_tax,
+        'acct_cot'      => $acct_cot,
+        'acct_imf'      => $acct_imf,
+        'marital_status'=> $marital_status,
+        'acct_limit'    => $limit,
+        'acct_balance'  => $acct_balance,
+        'avail_balance' => $avail_balance,
+        'loan_balance'  => $loan_balance,
+        'limit_remain'  => $limiBalance,
+        'ssn'           => $ssn,
+        'country'       => $country,
+        'state'         => $state,
+        'acct_address'  => $acct_address,
+        'acct_currency' => $acct_currency,
+        'id'            => $id
     ]);
 
     if(true){
@@ -421,37 +435,91 @@ die;
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <!-- ── Balances ── -->
                                                         <div class="row">
-                                                            <div class="col-md-6">
-                                                                <div class="row">
-                                                                    <div class="col-md-4">
-                                                                        <label for="profession">Account Balance</label><br>
-
-                                                                        <button class="btn btn-danger disabled col-md-12"><?= $row['acct_balance'] ?></button>
-                                                                    </div>
-                                                                    <div class="col-md-8">
-                                                                        <div class="form-group">
-                                                                            
-                                                                            <label for="profession">Account Limit</label>
-                                                                            <input type="text" class="form-control mb-4" name="acct_limit" placeholder="<?= $row['acct_limit'] ?>" value="<?= $row['acct_limit'] ?>">
-                                                                            
-                                                                            <input type="text" name="acct_balance" hidden value="<?= $row['acct_balance'] ?>">
-                                                                        </div>
-                                                                    </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>Account Balance</label>
+                                                                    <input type="number" step="0.01" class="form-control mb-4" name="acct_balance" value="<?= $row['acct_balance'] ?>" placeholder="Account Balance">
                                                                 </div>
                                                             </div>
-
-                                                            <div class="col-md-6">
+                                                            <div class="col-sm-4">
                                                                 <div class="form-group">
-                                                                    <label for="profession">TAX code</label>
-                                                                    <input type="text" class="form-control mb-4" value="<?= $row['acct_tax'] ?>" name="acct_tax">
+                                                                    <label>Available Balance</label>
+                                                                    <input type="number" step="0.01" class="form-control mb-4" name="avail_balance" value="<?= $row['avail_balance'] ?>" placeholder="Available Balance">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>Loan Balance</label>
+                                                                    <input type="number" step="0.01" class="form-control mb-4" name="loan_balance" value="<?= $row['loan_balance'] ?>" placeholder="Loan Balance">
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                            <div class="col-md-12">
-                                                                <button class="btn btn-primary text-center" name="profile_save">Save</button>
+                                                        <!-- ── Limit / Currency / Tax ── -->
+                                                        <div class="row">
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>Account Limit</label>
+                                                                    <input type="number" step="0.01" class="form-control mb-4" name="acct_limit" value="<?= $row['acct_limit'] ?>">
+                                                                </div>
                                                             </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>Currency</label>
+                                                                    <select name="acct_currency" class="form-control basic mb-4">
+                                                                        <option value="<?= $row['acct_currency'] ?>"><?= $row['acct_currency'] ?></option>
+                                                                        <option value="USD">USD ($)</option>
+                                                                        <option value="Euro">Euro (€)</option>
+                                                                        <option value="GBP">GBP (£)</option>
+                                                                        <option value="Yuan">Yuan (¥)</option>
+                                                                        <option value="CAD">CAD (CA$)</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>TAX Code</label>
+                                                                    <input type="text" class="form-control mb-4" name="acct_tax" value="<?= $row['acct_tax'] ?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- ── Identity / Address ── -->
+                                                        <div class="row">
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>SSN / ID Number</label>
+                                                                    <input type="text" class="form-control mb-4" name="ssn" value="<?= $row['ssn'] ?>" placeholder="Social Security Number">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>Country</label>
+                                                                    <input type="text" class="form-control mb-4" name="country" value="<?= $row['country'] ?>" placeholder="Country">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <div class="form-group">
+                                                                    <label>State / Province</label>
+                                                                    <input type="text" class="form-control mb-4" name="state" value="<?= $row['state'] ?>" placeholder="State">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-sm-12">
+                                                                <div class="form-group">
+                                                                    <label>Home Address</label>
+                                                                    <textarea class="form-control mb-4" name="acct_address" rows="2" placeholder="Full address"><?= $row['acct_address'] ?></textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-12">
+                                                            <button class="btn btn-primary text-center" name="profile_save">Save All Changes</button>
+                                                        </div>
 
 
 

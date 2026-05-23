@@ -106,6 +106,84 @@ document.addEventListener('DOMContentLoaded', function(){
     if(loader) loader.style.display = 'none';
 });
 
+// ── Real-time Approval Notifications ──
+(function(){
+    var NOTIF_KEY   = 'bp_notif_last_id';
+    var lastId      = parseInt(localStorage.getItem(NOTIF_KEY) || '0', 10);
+    var currency    = '<?= addslashes($currency) ?>';
+
+    function showApprovalToast(n){
+        var isCredit   = (n.type === 'Credit' || n.type === 'Deposit');
+        var color      = isCredit ? '#10b981' : '#ef4444';
+        var icon       = isCredit ? 'ri-arrow-down-circle-fill' : 'ri-arrow-up-circle-fill';
+        var amount     = currency + parseFloat(n.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+        var toast = document.createElement('div');
+        toast.style.cssText = [
+            'position:fixed','bottom:24px','right:24px','z-index:9999',
+            'background:var(--bp-surface)','border:1.5px solid '+color,
+            'border-radius:14px','padding:14px 18px',
+            'display:flex','align-items:center','gap:12px',
+            'box-shadow:0 8px 32px rgba(0,0,0,0.18)',
+            'min-width:280px','max-width:340px',
+            'animation:bpToastIn .35s cubic-bezier(.34,1.56,.64,1) both',
+            'cursor:pointer'
+        ].join(';');
+
+        toast.innerHTML = '<div style="width:38px;height:38px;border-radius:10px;background:'+color+'22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
+            + '<i class="'+icon+'" style="color:'+color+';font-size:20px;"></i></div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-size:.82rem;font-weight:700;color:var(--bp-text);margin-bottom:2px;">'+n.label+'</div>'
+            + '<div style="font-size:.78rem;color:'+color+';font-weight:700;">'+amount+'</div>'
+            + '<div style="font-size:.72rem;color:var(--bp-text3);margin-top:2px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+n.message+'</div>'
+            + '</div>'
+            + '<button onclick="this.parentNode.remove()" style="background:none;border:none;color:var(--bp-text3);cursor:pointer;font-size:16px;padding:0 0 0 4px;">&times;</button>';
+
+        toast.addEventListener('click', function(e){ if(e.target.tagName!=='BUTTON') toast.remove(); });
+        document.body.appendChild(toast);
+        setTimeout(function(){ if(toast.parentNode) toast.remove(); }, 7000);
+    }
+
+    // Inject toast animation keyframe once
+    if(!document.getElementById('bp-toast-style')){
+        var s = document.createElement('style');
+        s.id = 'bp-toast-style';
+        s.textContent = '@keyframes bpToastIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}';
+        document.head.appendChild(s);
+    }
+
+    function poll(){
+        fetch('./api/notifications.php?since='+lastId)
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                if(!data.notifications) return;
+                var maxId = lastId;
+                data.notifications.forEach(function(n){
+                    if(n.id > maxId) maxId = n.id;
+                    if(n.id > lastId) showApprovalToast(n);
+                });
+                if(maxId > lastId){
+                    lastId = maxId;
+                    localStorage.setItem(NOTIF_KEY, lastId);
+                    // Update badge count
+                    var badge = document.querySelector('#bpNotifBtn .bp-navbar-badge');
+                    if(!badge && data.count > 0){
+                        badge = document.createElement('span');
+                        badge.className = 'bp-navbar-badge';
+                        document.getElementById('bpNotifBtn') && document.getElementById('bpNotifBtn').appendChild(badge);
+                    }
+                }
+            })
+            .catch(function(){});
+    }
+
+    // Only poll if page has been loaded for >2s (avoid double-loading flicker)
+    setTimeout(function(){
+        poll();
+        setInterval(poll, 30000);
+    }, 2000);
+})();
+
 // ── DataTables ──
 $(document).ready(function(){
     if($.fn.DataTable){

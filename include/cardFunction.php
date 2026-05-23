@@ -1,14 +1,17 @@
 <?php
 
 function getCardStatus($status){
-    if($status['card_status']==='1'){
+    $s = (int)$status['card_status'];
+    if($s === 1){
         return '<button class="btn btn-success btn-sm">ACTIVE</button>';
-    }elseif($status['card_status']==='2'){
-        return '<button class="btn btn-primary btn-sm ">PROCESSING</button>';
-    }elseif($status['card_status']==='3'){
+    }elseif($s === 2){
+        return '<button class="btn btn-primary btn-sm">PROCESSING</button>';
+    }elseif($s === 3){
         return '<button class="btn btn-danger btn-sm">ON HOLD</button>';
-    }elseif($status['card_status']==='4'){
-        return '<button class="btn btn-danger btn-sm">PAUSE</button>';
+    }elseif($s === 4){
+        return '<button class="btn btn-warning btn-sm">PAUSED</button>';
+    }else{
+        return '<button class="btn btn-secondary btn-sm">UNKNOWN</button>';
     }
 }
 

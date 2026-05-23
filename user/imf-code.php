@@ -13,7 +13,7 @@ include("./userPinfunction.php");
                 <div class="card component-card">
                     <div class="card-body">
                         <?php
-                        if($_SESSION['wire-transfer']){
+                        if(!empty($_SESSION['wire-transfer'])){
                             ?>
                             <div class="user-profile">
                                 <div class="row">
@@ -62,7 +62,7 @@ include("./userPinfunction.php");
                                 </form>
                             </div>
                             <?php
-                        }elseif($_SESSION['dom-transfer']){
+                        }elseif(!empty($_SESSION['dom-transfer'])){
                             ?>
                             <div class="user-profile">
                                 <div class="row">

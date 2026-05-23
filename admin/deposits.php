@@ -55,9 +55,6 @@
         </tr>
         <?php endwhile; ?>
         </tbody>
-        <tfoot>
-          <tr><th>S/N</th><th>Name</th><th>Email</th><th>Amount</th><th>Reference</th><th>Billing Code</th><th>Status</th><th>Date</th></tr>
-        </tfoot>
       </table>
     </div>
   </div>

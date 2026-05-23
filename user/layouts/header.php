@@ -245,11 +245,6 @@ $notifLoans = $stmtLoans->fetchAll(PDO::FETCH_ASSOC);
                 </a>
             </li>
             <li class="bp-nav-item">
-                <a href="./account-manager.php" class="bp-nav-link <?php active('account-manager.php'); ?>">
-                    <i class="ri-user-star-line"></i> Account Manager
-                </a>
-            </li>
-            <li class="bp-nav-item">
                 <a href="./logout.php" class="bp-nav-link">
                     <i class="ri-logout-box-r-line"></i> Sign Out
                 </a>

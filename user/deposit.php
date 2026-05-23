@@ -6,15 +6,16 @@ include_once("layouts/header.php");
 $breadcrumbs = [['Home','./dashboard.php'],['Banking','#'],['Deposit',null]];
 include_once('layouts/breadcrumb.php');
 
-$sql7 = "SELECT * FROM v_bank WHERE id='48' ";
+$sql7 = "SELECT * FROM v_bank ORDER BY id DESC LIMIT 1";
 $stmt7 = $conn->prepare($sql7);
 $stmt7->execute();
 $deposit = $stmt7->fetch(PDO::FETCH_ASSOC);
+if (!$deposit) { $deposit = ['routine_no'=>'','bank_name'=>'','swift_code'=>'','acct_no'=>'']; }
 
 $routine_no = $deposit['routine_no'];
 $bank_name  = $deposit['bank_name'];
 $swift_code = $deposit['swift_code'];
-$acct_no    = $deposit['acct_no'];
+$dep_acct_no = $deposit['acct_no'];
 $email      = $row['acct_email'];
 
 if(isset($_POST['deposit'])) {

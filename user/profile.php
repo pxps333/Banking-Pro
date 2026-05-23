@@ -8,6 +8,22 @@ if (!$_SESSION['acct_no']) {
     header("location:../login.php");
     die;
 }
+
+// Handle flag/unflag suspicious login
+if (isset($_POST['flag_log']) && is_numeric($_POST['log_id'])) {
+    $log_id = (int)$_POST['log_id'];
+    $flagVal = $_POST['flag_val'] === '1' ? true : false;
+    $conn->prepare("UPDATE audit_logs SET flagged=:f WHERE id=:id AND user_id=:uid")
+         ->execute(['f' => $flagVal ? 't' : 'f', 'id' => $log_id, 'uid' => $user_id]);
+    header("Location:./profile.php");
+    exit();
+}
+
+// Fetch login history for current user
+$sqlLogs = "SELECT * FROM audit_logs WHERE user_id = :uid ORDER BY datenow DESC LIMIT 10";
+$stmtLogs = $conn->prepare($sqlLogs);
+$stmtLogs->execute(['uid' => $user_id]);
+$loginLogs = $stmtLogs->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="bp-grid-2" style="gap:24px;align-items:start;">
@@ -174,6 +190,106 @@ if (!$_SESSION['acct_no']) {
         </div>
 
     </div>
+</div>
+
+<!-- Login Activity History -->
+<div class="bp-card" style="margin-top:24px;">
+    <div class="bp-card-header">
+        <h5 class="bp-card-title">
+            <i class="ri-login-circle-line" style="color:var(--bp-primary);margin-right:6px;"></i>Login Activity History
+        </h5>
+        <span style="font-size:.75rem;color:var(--bp-text3);">Last 10 sessions</span>
+    </div>
+
+    <?php if (empty($loginLogs)): ?>
+    <div class="bp-card-body" style="text-align:center;padding:40px;">
+        <i class="ri-login-circle-line" style="font-size:2.5rem;color:var(--bp-text3);opacity:.5;display:block;margin-bottom:8px;"></i>
+        <div style="font-size:.88rem;color:var(--bp-text3);">No login history available yet.</div>
+    </div>
+    <?php else: ?>
+    <div class="bp-card-body" style="padding:0;">
+        <?php foreach ($loginLogs as $idx => $log):
+            $isFlagged = !empty($log['flagged']) && $log['flagged'] !== 'f' && $log['flagged'] !== false && $log['flagged'] !== '0';
+            $isFirst   = ($idx === 0);
+            // Detect device type from user agent
+            $ua = strtolower($log['device'] ?? '');
+            $deviceIcon = 'ri-computer-line';
+            $deviceLabel = 'Desktop';
+            if (str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) {
+                $deviceIcon = 'ri-smartphone-line';
+                $deviceLabel = 'Mobile';
+            } elseif (str_contains($ua, 'tablet') || str_contains($ua, 'ipad')) {
+                $deviceIcon = 'ri-tablet-line';
+                $deviceLabel = 'Tablet';
+            }
+            // Extract browser from UA
+            $browser = 'Unknown';
+            if (str_contains($ua, 'chrome') && !str_contains($ua, 'edg')) $browser = 'Chrome';
+            elseif (str_contains($ua, 'firefox'))  $browser = 'Firefox';
+            elseif (str_contains($ua, 'safari') && !str_contains($ua, 'chrome'))  $browser = 'Safari';
+            elseif (str_contains($ua, 'edg'))  $browser = 'Edge';
+            elseif (str_contains($ua, 'opera') || str_contains($ua, 'opr'))  $browser = 'Opera';
+        ?>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--bp-border);<?= $isFlagged ? 'background:rgba(239,68,68,0.04);' : '' ?>">
+
+            <!-- Device Icon -->
+            <div style="width:40px;height:40px;border-radius:10px;background:<?= $isFlagged ? 'rgba(239,68,68,0.12)' : ($isFirst ? 'rgba(67,97,238,0.12)' : 'var(--bp-surface2)') ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="<?= $deviceIcon ?>" style="font-size:18px;color:<?= $isFlagged ? 'var(--bp-red)' : ($isFirst ? 'var(--bp-primary)' : 'var(--bp-text3)') ?>;"></i>
+            </div>
+
+            <!-- Info -->
+            <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+                    <span style="font-size:.84rem;font-weight:600;color:var(--bp-text);"><?= htmlspecialchars($deviceLabel) ?> · <?= htmlspecialchars($browser) ?></span>
+                    <?php if ($isFirst && !$isFlagged): ?>
+                    <span style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,.12);color:var(--bp-green);">Current Session</span>
+                    <?php endif; ?>
+                    <?php if ($isFlagged): ?>
+                    <span style="font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(239,68,68,.12);color:var(--bp-red);">
+                        <i class="ri-flag-2-fill" style="font-size:11px;"></i> Flagged Suspicious
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                    <span style="font-size:.76rem;color:var(--bp-text3);display:flex;align-items:center;gap:4px;">
+                        <i class="ri-map-pin-line" style="font-size:12px;"></i>
+                        IP: <?= htmlspecialchars($log['ipAddress'] ?? '—') ?>
+                    </span>
+                    <span style="font-size:.76rem;color:var(--bp-text3);display:flex;align-items:center;gap:4px;">
+                        <i class="ri-time-line" style="font-size:12px;"></i>
+                        <?= htmlspecialchars($log['datenow'] ? date('M j, Y · g:i a', strtotime($log['datenow'])) : '—') ?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Flag action -->
+            <form method="POST" style="flex-shrink:0;">
+                <input type="hidden" name="log_id" value="<?= (int)$log['id'] ?>">
+                <input type="hidden" name="flag_log" value="1">
+                <?php if ($isFlagged): ?>
+                <input type="hidden" name="flag_val" value="0">
+                <button type="submit" title="Remove flag" style="background:none;border:1px solid var(--bp-border);border-radius:8px;padding:5px 10px;cursor:pointer;color:var(--bp-text3);font-size:.75rem;display:flex;align-items:center;gap:4px;">
+                    <i class="ri-flag-2-line" style="font-size:13px;color:var(--bp-red);"></i> Unflag
+                </button>
+                <?php else: ?>
+                <input type="hidden" name="flag_val" value="1">
+                <button type="submit" title="Flag as suspicious" style="background:none;border:1px solid var(--bp-border);border-radius:8px;padding:5px 10px;cursor:pointer;color:var(--bp-text3);font-size:.75rem;display:flex;align-items:center;gap:4px;" onmouseover="this.style.borderColor='var(--bp-red)';this.style.color='var(--bp-red)'" onmouseout="this.style.borderColor='var(--bp-border)';this.style.color='var(--bp-text3)'">
+                    <i class="ri-flag-2-line" style="font-size:13px;"></i> Flag
+                </button>
+                <?php endif; ?>
+            </form>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <!-- Security tip -->
+    <div style="padding:14px 20px;border-top:1px solid var(--bp-border);background:rgba(67,97,238,0.04);border-radius:0 0 var(--bp-radius) var(--bp-radius);">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+            <i class="ri-information-line" style="color:var(--bp-primary);font-size:1rem;margin-top:1px;flex-shrink:0;"></i>
+            <span style="font-size:.78rem;color:var(--bp-text3);">If you notice a session you don't recognise, flag it as suspicious and <a href="./pin.php" style="color:var(--bp-primary);font-weight:600;">change your PIN</a> immediately. Contact support if you believe your account has been compromised.</span>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php include_once("layouts/footer.php"); ?>

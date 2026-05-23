@@ -10,6 +10,19 @@ $data->execute(['id'=>$id]);
 
 $row = $data->fetch(PDO::FETCH_ASSOC);
 
+// Flash success message after profile save redirect
+$flash_msg = '';
+$flash_type = '';
+if (isset($_GET['msg'])) {
+    if ($_GET['msg'] === 'updated') {
+        $flash_msg = 'Account details updated successfully.';
+        $flash_type = 'success';
+    } elseif ($_GET['msg'] === 'error') {
+        $flash_msg = 'Something went wrong. Please try again.';
+        $flash_type = 'error';
+    }
+}
+
 if($row['billing_code']=='0'){
     $billing = "DEACTIVATE";
 }elseif($row['billing_code']=='1'){
@@ -124,16 +137,11 @@ if(isset($_POST['profile_save'])){
     ]);
 
     if(true){
-       // toast_alert('success','Account updated successfully','Approved');
-        header("Location:./users.php");
-        
-        
+        header("Location:./view_users.php?id=".$id."&msg=updated");
+        die;
     }else{
         toast_alert('error','Sorry something went wrong');
-        
-        
     }
-    
     //header('Location:'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
     
 
@@ -309,6 +317,21 @@ die;
 
 ?>
 <!--  BEGIN CONTENT AREA  -->
+<?php if ($flash_msg): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    Swal.fire({
+        icon: '<?= $flash_type ?>',
+        title: '<?= $flash_type === "success" ? "Updated!" : "Error" ?>',
+        text: '<?= addslashes($flash_msg) ?>',
+        timer: 3500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+});
+</script>
+<?php endif; ?>
 <div id="content" class="main-content">
     <div class="layout-px-spacing">
         <div class="account-settings-container layout-top-spacing">

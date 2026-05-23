@@ -27,13 +27,9 @@ $sql = "SELECT COUNT(*) as total FROM withdrawal WHERE status='0'";
 $stmt = $conn->prepare($sql); $stmt->execute();
 $pending_withdrawals = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-$sql = "SELECT firstname, lastname, acct_email, acct_type, acct_balance, acct_currency, acct_status FROM users ORDER BY id DESC LIMIT 5";
+$sql = "SELECT firstname, lastname, acct_email, acct_type, acct_balance, acct_currency, acct_status FROM users ORDER BY id DESC LIMIT 8";
 $stmt = $conn->prepare($sql); $stmt->execute();
 $recent_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$sql = "SELECT t.amount, t.sender_name, t.trans_type, t.created_at, u.firstname, u.lastname, u.acct_currency FROM transactions t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.trans_id DESC LIMIT 5";
-$stmt = $conn->prepare($sql); $stmt->execute();
-$recent_trans = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div id="content" class="main-content">
@@ -103,80 +99,38 @@ $recent_trans = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <a href="./settings.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-settings-3-line"></i> Settings</a>
 </div>
 
-<!-- Two column: recent users + recent transactions -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-
-  <div class="adm-card">
-    <div class="adm-card-header">
-      <h2 class="adm-card-title"><i class="ri-group-line"></i> Recent Users</h2>
-      <a href="./users.php" class="adm-btn adm-btn-sm adm-btn-outline">View All</a>
-    </div>
-    <div class="adm-card-body" style="padding:0">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Balance</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($recent_users as $u):
-            $curr_sym = $u['acct_currency'] === 'USD' ? '$' : ($u['acct_currency'] === 'Euro' ? '€' : ($u['acct_currency'] === 'GBP' ? '£' : '$'));
-          ?>
-          <tr>
-            <td>
-              <div style="font-weight:600;font-size:.84rem"><?= htmlspecialchars(ucwords($u['firstname'].' '.$u['lastname'])) ?></div>
-              <div style="font-size:.72rem;color:var(--adm-text3)"><?= htmlspecialchars($u['acct_email']) ?></div>
-            </td>
-            <td><span class="adm-badge adm-badge-info"><?= htmlspecialchars($u['acct_type']) ?></span></td>
-            <td style="font-weight:600"><?= $curr_sym.number_format((float)$u['acct_balance'],2) ?></td>
-            <td><span class="adm-badge <?= $u['acct_status'] == '1' ? 'adm-badge-success' : 'adm-badge-neutral' ?>"><?= $u['acct_status'] == '1' ? 'Active' : 'Inactive' ?></span></td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+<!-- Recent Users full-width -->
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-group-line"></i> Recent Users</h2>
+    <a href="./users.php" class="adm-btn adm-btn-sm adm-btn-outline">View All</a>
   </div>
-
-  <div class="adm-card">
-    <div class="adm-card-header">
-      <h2 class="adm-card-title"><i class="ri-exchange-funds-line"></i> Recent Transactions</h2>
-      <a href="./credit_debit_trans.php" class="adm-btn adm-btn-sm adm-btn-outline">View All</a>
-    </div>
-    <div class="adm-card-body" style="padding:0">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($recent_trans as $t):
-            $curr_sym = $t['acct_currency'] === 'USD' ? '$' : ($t['acct_currency'] === 'Euro' ? '€' : ($t['acct_currency'] === 'GBP' ? '£' : '$'));
-          ?>
-          <tr>
-            <td style="font-weight:600;font-size:.84rem"><?= htmlspecialchars(ucwords($t['firstname'].' '.$t['lastname'])) ?></td>
-            <td style="font-weight:700"><?= $curr_sym.number_format((float)$t['amount'],2) ?></td>
-            <td>
-              <?php if ($t['trans_type'] == '1'): ?>
-                <span class="adm-badge adm-badge-success">Credit</span>
-              <?php else: ?>
-                <span class="adm-badge adm-badge-danger">Debit</span>
-              <?php endif; ?>
-            </td>
-            <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($t['created_at']) ?></td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+  <div class="adm-card-body" style="padding:0">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Balance</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($recent_users as $u):
+          $curr_sym = $u['acct_currency'] === 'USD' ? '$' : ($u['acct_currency'] === 'Euro' ? '€' : ($u['acct_currency'] === 'GBP' ? '£' : '$'));
+        ?>
+        <tr>
+          <td style="font-weight:600;font-size:.84rem"><?= htmlspecialchars(ucwords($u['firstname'].' '.$u['lastname'])) ?></td>
+          <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($u['acct_email']) ?></td>
+          <td><span class="adm-badge adm-badge-info"><?= htmlspecialchars($u['acct_type']) ?></span></td>
+          <td style="font-weight:600"><?= $curr_sym.number_format((float)$u['acct_balance'],2) ?></td>
+          <td><span class="adm-badge <?= strtolower($u['acct_status']) === 'active' ? 'adm-badge-success' : 'adm-badge-neutral' ?>"><?= ucfirst(htmlspecialchars($u['acct_status'])) ?></span></td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
-
 </div>
 
 </div>

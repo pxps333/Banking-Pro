@@ -29,12 +29,6 @@ if (isset($_POST['register'])){
     $acct_imf = inputValidation($_POST['acct_imf']);
     $acct_tax = inputValidation($_POST['acct_tax']);
     $acct_pin = inputValidation($_POST['acct_pin']);
-    // Account Manager Field
-    $mgr_name = inputValidation($_POST['mgr_name']);
-    $mgr_no = inputValidation($_POST['mgr_no']);
-    $mgr_email = inputValidation($_POST['mgr_email']);
-    $mgr_id = inputValidation($_POST['mgr_id']);
-    $mgr_image = inputValidation($_POST['mgr_image']);
     
     
 
@@ -54,7 +48,7 @@ if (isset($_POST['register'])){
             toast_alert('error','Email Already Exit');
         }else{
             //INSERT INTO DATABASE
-            $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_limit,limit_remain,acct_email,acct_password,acct_no,ssn,acct_balance,avail_balance,acct_type,acct_gender,marital_status,acct_currency,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_cot,acct_imf,acct_pin,acct_tax,mgr_name,mgr_no,mgr_email,mgr_id,mgr_image) VALUES(:acct_username,:firstname,:lastname,:acct_limit,:limit_remain,:acct_email,:acct_password,:acct_no,:ssn,:acct_balance,:avail_balance,:acct_type,:acct_gender,:marital_status,:acct_currency,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_cot,:acct_imf,:acct_tax,:acct_pin,:mgr_name,:mgr_no,:mgr_email,:mgr_id,:mgr_image)";
+            $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_limit,limit_remain,acct_email,acct_password,acct_no,ssn,acct_balance,avail_balance,acct_type,acct_gender,marital_status,acct_currency,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_cot,acct_imf,acct_pin,acct_tax) VALUES(:acct_username,:firstname,:lastname,:acct_limit,:limit_remain,:acct_email,:acct_password,:acct_no,:ssn,:acct_balance,:avail_balance,:acct_type,:acct_gender,:marital_status,:acct_currency,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_cot,:acct_imf,:acct_tax,:acct_pin)";
             $reg = $conn->prepare($registered);
             $reg->execute([
                 'acct_username' => $acct_username,
@@ -82,14 +76,6 @@ if (isset($_POST['register'])){
                 'acct_imf'=>$acct_imf,
                 'acct_tax'=>$acct_tax,
                 'acct_pin'=>$acct_pin,
-                // Account Manager Field
-                'mgr_name' =>$mgr_name,
-                'mgr_no' =>$mgr_no,
-                'mgr_email' =>$mgr_email,
-                'mgr_id' =>$mgr_id,
-                'mgr_image' =>$mgr_image,
-                
-                
             ]);
 
 
@@ -589,44 +575,6 @@ if (isset($_POST['register'])){
                                     </div>
                                     
                                     
-                                    <!-- Account Manager -->
-                                    
-                                    
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-4">
-                                                <input name="mgr_name" type="text" class="form-control" placeholder="Account Manager Name" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <input name="mgr_no" type="text" class="form-control"  placeholder="Account Manager Number" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-4">
-                                                <input name="mgr_email" type="text" class="form-control" placeholder="Account Manager Email" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <input name="mgr_id" type="text" class="form-control"  placeholder="Account Manager ID" required>
-                                                <input type="text" class="form-control"  placeholder="account1.png" value="account1.png" name="mgr_image"  hidden/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                   
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    <!-- End Account Manager -->
                                     
                                     
 

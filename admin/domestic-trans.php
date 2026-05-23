@@ -56,9 +56,7 @@
         </tr>
         <?php endwhile; ?>
         </tbody>
-        <tfoot>
-          <tr><th>S/N</th><th>Amount</th><th>Bank</th><th>Account Name</th><th>Account No</th><th>Acct Type</th><th>Trans Type</th><th>Status</th><th></th></tr>
-        </tfoot>
+    
       </table>
     </div>
   </div>

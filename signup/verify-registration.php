@@ -51,114 +51,76 @@ if(isset($_POST['regSubmit'])){
         if ($stmt->rowCount() > 0) {
             notify_alert('Email or Username Already Exit', 'danger', '3000', 'close');
         } else {
-            if (isset($_FILES['profile_pic'])) {
-                $file = $_FILES['profile_pic'];
-                $name = $file['name'];
-
-                $path = pathinfo($name, PATHINFO_EXTENSION);
-
-                $allowed = array('jpg', 'png', 'jpeg');
-
-
-                $folder = "../assets/profile/";
-                $n = time() . $name;
-
-                $destination = $folder . $n;
-            }
-            if (move_uploaded_file($file['tmp_name'], $destination)) {
-
-                if (isset($_FILES['frontID'])) {
-                    $file = $_FILES['frontID'];
-                    $name = $file['name'];
-
-                    $path = pathinfo($name, PATHINFO_EXTENSION);
-
-                    $allowed = array('jpg', 'png', 'jpeg');
-
-
-                    $folder = "../assets/idcard/";
-                    $frontid = time() . $name;
-
-                    $destination = $folder . $n;
-                }
-                if (move_uploaded_file($file['tmp_name'], $destination)) {
-
-                    if (isset($_FILES['backID'])) {
-                        $file = $_FILES['backID'];
-                        $name = $file['name'];
-
-                        $path = pathinfo($name, PATHINFO_EXTENSION);
-
-                        $allowed = array('jpg', 'png', 'jpeg');
-
-
-                        $folder = "../assets/idcard/";
-                        $backId = time() . $name;
-
-                        $destination = $folder . $n;
-                    }
-                    if (move_uploaded_file($file['tmp_name'], $destination)) {
-
-                        //INSERT INTO DATABASE
-                        $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_email,acct_password,acct_no,acct_type,acct_gender,acct_currency,acct_status,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_pin,ssn,frontID,backID,image) VALUES(:acct_username,:firstname,:lastname,:acct_email,:acct_password,:acct_no,:acct_type,:acct_gender,:acct_currency,:acct_status,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_pin,:ssn,:frontID,:backID,:image)";
-                        $reg = $conn->prepare($registered);
-                        $reg->execute([
-                            'acct_username' => $acct_username,
-                            'firstname' => $firstname,
-                            'lastname' => $lastname,
-                            'acct_email' => $acct_email,
-                            'acct_password' => password_hash((string)$acct_password, PASSWORD_BCRYPT),
-                            'acct_no' => $acct_no,
-                            'acct_type' => $acct_type,
-                            'acct_gender' => $acct_gender,
-                            'acct_currency' => $acct_currency,
-                            'acct_status' => $acct_status,
-                            'acct_phone' => $acct_phone,
-                            'acct_occupation' => $acct_occupation,
-                            'country' => $country,
-                            'state' => $state,
-                            'acct_address' => $acct_address,
-                            'acct_dob' => $acct_dob,
-                            'acct_pin' => $acct_pin,
-                            'ssn' => $ssn,
-                            'frontID' => $frontid,
-                            'backID' => $backId,
-                            'image'=>$n
-                ]);
-
-
-                if (true) {
-
-                    // if ($acct_currency === 'USD') {
-                    //     $currency = "$";
-                    // } elseif ($acct_currency === 'EUR') {
-                    //     $currency = "&euro;";
-                    // }
-
-                    $fullName = $firstname . " " . $lastname;
-                    //EMAIL SENDING
-                    $email = $acct_email;
-                    $APP_NAME = $pageTitle;
-                    $APP_URL = WEB_URL;
-                    $message = $sendMail->regMsgUser($fullName,$acct_no,$acct_status,$acct_email,$acct_phone,$acct_type,$acct_pin,$APP_NAME,$APP_URL);
-                    //User Email
-                    $subject = "Register - $APP_NAME";
-                    $email_message->send_mail($email, $message, $subject);
-                    // Admin Email
-                    $subject = "User Register - $APP_NAME";
-                    $email_message->send_mail(WEB_EMAIL, $message, $subject);
-                }
-
-
-           if (true) {
-                    toast_alert('success', 'Account Created Successfully, Kindly proceed to login', 'Approved');
-                } else {
-                    toast_alert('error', 'Sorry something went wrong');
-                }
-
-                }
+                /* ── Profile picture ── */
+            $n = 'default.png';
+            if (!empty($_FILES['profile_pic']['name']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
+                $profileFile = $_FILES['profile_pic'];
+                $profileName = time() . '_' . basename($profileFile['name']);
+                $profileDest = '../assets/profile/' . $profileName;
+                if (move_uploaded_file($profileFile['tmp_name'], $profileDest)) {
+                    $n = $profileName;
                 }
             }
+
+            /* ── Front ID ── */
+            $frontid = '';
+            if (!empty($_FILES['frontID']['name']) && $_FILES['frontID']['error'] === UPLOAD_ERR_OK) {
+                $frontFile = $_FILES['frontID'];
+                $frontName = time() . '_front_' . basename($frontFile['name']);
+                $frontDest = '../assets/idcard/' . $frontName;
+                if (move_uploaded_file($frontFile['tmp_name'], $frontDest)) {
+                    $frontid = $frontName;
+                }
+            }
+
+            /* ── Back ID ── */
+            $backId = '';
+            if (!empty($_FILES['backID']['name']) && $_FILES['backID']['error'] === UPLOAD_ERR_OK) {
+                $backFile = $_FILES['backID'];
+                $backName = time() . '_back_' . basename($backFile['name']);
+                $backDest = '../assets/idcard/' . $backName;
+                if (move_uploaded_file($backFile['tmp_name'], $backDest)) {
+                    $backId = $backName;
+                }
+            }
+
+            /* ── INSERT INTO DATABASE ── */
+            $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_email,acct_password,acct_no,acct_type,acct_gender,acct_currency,acct_status,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_pin,ssn,\"frontID\",\"backID\",image) VALUES(:acct_username,:firstname,:lastname,:acct_email,:acct_password,:acct_no,:acct_type,:acct_gender,:acct_currency,:acct_status,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_pin,:ssn,:frontID,:backID,:image)";
+            $reg = $conn->prepare($registered);
+            $reg->execute([
+                'acct_username'   => $acct_username,
+                'firstname'       => $firstname,
+                'lastname'        => $lastname,
+                'acct_email'      => $acct_email,
+                'acct_password'   => password_hash((string)$acct_password, PASSWORD_BCRYPT),
+                'acct_no'         => $acct_no,
+                'acct_type'       => $acct_type,
+                'acct_gender'     => $acct_gender,
+                'acct_currency'   => $acct_currency,
+                'acct_status'     => $acct_status,
+                'acct_phone'      => $acct_phone,
+                'acct_occupation' => $acct_occupation,
+                'country'         => $country,
+                'state'           => $state,
+                'acct_address'    => $acct_address,
+                'acct_dob'        => $acct_dob,
+                'acct_pin'        => $acct_pin,
+                'ssn'             => $ssn,
+                'frontID'         => $frontid,
+                'backID'          => $backId,
+                'image'           => $n,
+            ]);
+
+            /* ── Send welcome emails ── */
+            $fullName = $firstname . ' ' . $lastname;
+            $email    = $acct_email;
+            $APP_NAME = $pageTitle;
+            $APP_URL  = WEB_URL;
+            $message  = $sendMail->regMsgUser($fullName,$acct_no,$acct_status,$acct_email,$acct_phone,$acct_type,$acct_pin,$APP_NAME,$APP_URL);
+            $email_message->send_mail($email,  $message, "Register - $APP_NAME");
+            $email_message->send_mail(WEB_EMAIL, $message, "User Register - $APP_NAME");
+
+            toast_alert('success', 'Account Created Successfully, Kindly proceed to login', 'Approved');
 
         }
     }

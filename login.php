@@ -57,7 +57,7 @@ toast_alert("error","Invalid login details");
             $user_id = $user['id'];
           
             
-            $stmt = $conn->prepare("INSERT INTO audit_logs (user_id,device,ipAddress,datenow) VALUES(:user_id,:device,:ipAddress,:datenow)");
+            $stmt = $conn->prepare("INSERT INTO audit_logs (user_id,device,\"ipAddress\",datenow) VALUES(:user_id,:device,:ipAddress,:datenow)");
             $stmt->execute([
                 'user_id'=>$user_id,
                 'device'=>$device,

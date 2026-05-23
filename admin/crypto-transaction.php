@@ -65,20 +65,7 @@ include_once("./layout/header.php");
                             }
                             ?>
                             </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-
-                                <th>Amount</th>
-                                <th>Trans ID</th>
-                                <th>Name</th>
-                                <th>Wallet Address</th>
-                                <th>Crypto Name</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th class="text-center dt-no-sorting">Action</th>
-                            </tr>
-                            </tfoot>
+                          
                         </table>
                     </div>
                 </div>

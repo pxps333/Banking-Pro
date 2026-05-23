@@ -779,3 +779,248 @@ body.bp-dark .bp-dm-btn .moon { display: none; }
   z-index: 850;
 }
 .bp-overlay.active { display: block; }
+
+/* ══════════════════════════════════════════════════
+   Form Elements (bp-form-*)
+══════════════════════════════════════════════════ */
+.bp-form-label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--bp-text3);
+  margin-bottom: 6px;
+}
+.bp-form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--bp-border);
+  border-radius: 10px;
+  background: var(--bp-surface2);
+  color: var(--bp-text);
+  font-size: .875rem;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+}
+.bp-form-input:focus {
+  border-color: var(--bp-primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+}
+.bp-form-input::placeholder { color: var(--bp-text3); opacity: 0.7; }
+.bp-form-input[readonly] { opacity: 0.75; cursor: default; }
+textarea.bp-form-input { resize: vertical; min-height: 90px; }
+select.bp-form-input {
+  cursor: pointer;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.bp-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.bp-input-group .bp-form-input {
+  flex: 1;
+}
+.bp-input-group.has-prefix .bp-form-input { padding-left: 40px; }
+.bp-input-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bp-text3);
+  font-size: .95rem;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.bp-input-suffix {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  border-left: 1.5px solid var(--bp-border);
+  color: var(--bp-text3);
+  cursor: pointer;
+  border-radius: 0 10px 10px 0;
+  transition: background .15s, color .15s;
+}
+.bp-input-suffix:hover { background: rgba(67,97,238,0.07); color: var(--bp-primary); }
+/* When there's a suffix button, add right padding to input */
+.bp-input-group:has(.bp-input-suffix) .bp-form-input { padding-right: 48px; }
+/* Prefix icon spacing helper */
+.bp-input-group .bp-input-prefix ~ .bp-form-input { padding-left: 38px; }
+
+/* ══════════════════════════════════════════════════
+   Virtual Card Bounce Animation
+══════════════════════════════════════════════════ */
+@keyframes bp-card-bounce {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  30%       { transform: translateY(-14px) rotate(-3deg); }
+  60%       { transform: translateY(-6px) rotate(-4.5deg); }
+  80%       { transform: translateY(-10px) rotate(-3.5deg); }
+}
+.bp-virtual-card {
+  animation: bp-card-bounce 3.6s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* ══════════════════════════════════════════════════
+   Dark mode Bootstrap form overrides
+══════════════════════════════════════════════════ */
+body.bp-dark .form-control,
+body.bp-dark .form-select,
+body.bp-dark .input-group-text {
+  background-color: var(--bp-surface2) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text) !important;
+}
+body.bp-dark .form-control::placeholder { color: var(--bp-text3) !important; opacity: .7; }
+body.bp-dark .form-control:focus,
+body.bp-dark .form-select:focus {
+  border-color: var(--bp-primary) !important;
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.15) !important;
+}
+body.bp-dark .card,
+body.bp-dark .component-card,
+body.bp-dark .widget {
+  background: var(--bp-surface) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text) !important;
+}
+body.bp-dark .card-body { color: var(--bp-text) !important; }
+body.bp-dark label { color: var(--bp-text2) !important; }
+body.bp-dark select option { background: var(--bp-surface2); color: var(--bp-text); }
+body.bp-dark .selectpicker,
+body.bp-dark .bootstrap-select .dropdown-menu {
+  background: var(--bp-surface2) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text) !important;
+}
+body.bp-dark .bootstrap-select .dropdown-item { color: var(--bp-text) !important; }
+body.bp-dark .bootstrap-select .dropdown-item:hover { background: rgba(67,97,238,0.1) !important; }
+body.bp-dark .btn-light,
+body.bp-dark .btn-secondary { background: var(--bp-surface2) !important; border-color: var(--bp-border) !important; color: var(--bp-text) !important; }
+body.bp-dark .table { color: var(--bp-text) !important; }
+body.bp-dark .table td, body.bp-dark .table th { border-color: var(--bp-border) !important; }
+body.bp-dark .table-striped > tbody > tr:nth-of-type(odd) { background: rgba(255,255,255,0.03) !important; }
+
+/* ── Form Components ── */
+.bp-form-label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--bp-text3);
+  margin-bottom: 6px;
+}
+.bp-form-input {
+  width: 100%;
+  background: var(--bp-surface2);
+  border: 1.5px solid var(--bp-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: .88rem;
+  color: var(--bp-text);
+  outline: none;
+  transition: border .2s, box-shadow .2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bp-form-input:focus {
+  border-color: var(--bp-primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+}
+.bp-form-input::placeholder { color: var(--bp-text3); }
+.bp-form-input[readonly] { opacity: .7; cursor: default; }
+textarea.bp-form-input { resize: vertical; min-height: 100px; }
+select.bp-form-input { cursor: pointer; }
+
+.bp-input-group {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--bp-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border .2s, box-shadow .2s;
+  background: var(--bp-surface2);
+}
+.bp-input-group:focus-within {
+  border-color: var(--bp-primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+}
+.bp-input-group .bp-form-input {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  flex: 1;
+}
+.bp-input-group .bp-form-input:focus { box-shadow: none; }
+.bp-input-prefix, .bp-input-suffix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--bp-text3);
+  font-size: .9rem;
+  border: none;
+  cursor: pointer;
+  transition: color .2s;
+}
+.bp-input-suffix:hover { color: var(--bp-primary); }
+
+/* ── Virtual Card Bounce Animation ── */
+@keyframes bp-card-bounce {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  20%       { transform: translateY(-10px) rotateY(3deg); }
+  40%       { transform: translateY(-6px) rotateY(-2deg); }
+  60%       { transform: translateY(-10px) rotateY(2deg); }
+  80%       { transform: translateY(-4px) rotateY(-1deg); }
+}
+.virtual-card, .credit-card, .bp-virtual-card {
+  animation: bp-card-bounce 3.6s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* ── Dark mode patches for Bootstrap legacy forms/select ── */
+body.bp-dark .form-control,
+body.bp-dark .form-select,
+body.bp-dark select.selectpicker,
+body.bp-dark .bootstrap-select .dropdown-toggle,
+body.bp-dark .bootstrap-select .dropdown-menu,
+body.bp-dark .bootstrap-select .dropdown-item {
+  background-color: var(--bp-surface2) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text) !important;
+}
+body.bp-dark .input-group-text {
+  background-color: var(--bp-surface2) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text3) !important;
+}
+body.bp-dark .card,
+body.bp-dark .component-card {
+  background: var(--bp-surface) !important;
+  border-color: var(--bp-border) !important;
+  color: var(--bp-text) !important;
+}
+body.bp-dark label { color: var(--bp-text2) !important; }
+body.bp-dark .card-body { background: var(--bp-surface) !important; }
+body.bp-dark .alert-danger, body.bp-dark .bg-danger { background: rgba(239,68,68,0.15) !important; border-color: rgba(239,68,68,0.3) !important; }

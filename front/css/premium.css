@@ -616,30 +616,47 @@ h1,h2,h3,h4,h5,h6 { font-weight: 700; line-height: 1.2; letter-spacing: -0.02em;
   .ft-showcase { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .ft-navbar { padding: 0 20px; }
+  .ft-navbar { padding: 0 16px; }
   .ft-nav-links, .ft-nav-actions { display: none; }
   .ft-hamburger { display: flex; }
-  .ft-hero-inner { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px 60px; text-align: center; }
+  .ft-hero-inner { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px 56px; text-align: center; }
   .ft-hero-visual { display: none; }
-  .ft-hero-actions { justify-content: center; }
-  .ft-hero-stats { justify-content: center; }
-  .ft-hero-sub { margin: 0 auto 40px; }
-  .ft-section { padding: 70px 20px; }
-  .ft-section-full { padding: 70px 20px; }
-  .ft-features-grid { grid-template-columns: 1fr; }
+  .ft-hero-actions { justify-content: center; flex-wrap: wrap; gap: 10px; }
+  .ft-hero-stats { justify-content: center; flex-wrap: wrap; gap: 16px; }
+  .ft-hero-sub { margin: 0 auto 32px; max-width: 90%; }
+  .ft-hero-title { font-size: clamp(1.8rem, 8vw, 2.6rem) !important; }
+  .ft-section { padding: 56px 20px; }
+  .ft-section-full { padding: 56px 20px; }
+  .ft-features-grid { grid-template-columns: 1fr; gap: 16px; }
   .ft-pricing-grid { grid-template-columns: 1fr; }
   .ft-testimonials-grid { grid-template-columns: 1fr; }
   .ft-footer-top { grid-template-columns: 1fr 1fr; }
   .ft-footer-brand { grid-column: span 2; }
-  .ft-footer-bottom { flex-direction: column; align-items: center; text-align: center; }
-  .ft-trust-bar, .ft-proof-bar { padding: 20px; }
-  .ft-trust-inner { justify-content: center; }
-  .ft-cta-section { padding: 60px 20px; }
+  .ft-footer-bottom { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+  .ft-trust-bar, .ft-proof-bar { padding: 16px; }
+  .ft-trust-inner { justify-content: center; flex-wrap: wrap; gap: 16px; }
+  .ft-cta-section { padding: 48px 20px; }
   .ft-security-items { grid-template-columns: 1fr; }
-  .ft-footer { padding: 40px 20px 24px; }
+  .ft-footer { padding: 36px 20px 20px; }
+  .ft-security-grid { grid-template-columns: 1fr; }
+  .ft-showcase-grid { grid-template-columns: 1fr; }
+  .ft-btn-primary, .ft-btn-ghost { padding: 13px 24px; font-size: .9rem; }
+  .ft-section-heading { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+  .ft-mobile-menu { padding: 16px; }
+  .ft-mobile-menu a { padding: 12px 12px; font-size: .92rem; }
+  .ft-accordion-header { font-size: .88rem; }
 }
 @media (max-width: 480px) {
+  .ft-hero-title { font-size: clamp(1.6rem, 9vw, 2.2rem) !important; }
   .ft-footer-top { grid-template-columns: 1fr; }
   .ft-footer-brand { grid-column: unset; }
   .ft-pricing-grid { grid-template-columns: 1fr; }
+  .ft-hero-badge { font-size: .72rem; padding: 5px 12px; }
+  .ft-hero-stats { gap: 12px; }
+  .ft-stat-num { font-size: 1.2rem; }
+  .ft-cta-section .ft-hero-actions { flex-direction: column; align-items: stretch; }
+  .ft-cta-section .ft-btn-primary,
+  .ft-cta-section .ft-btn-ghost { text-align: center; justify-content: center; }
+  .ft-section { padding: 44px 16px; }
+  .ft-trust-item span { font-size: .78rem; }
 }

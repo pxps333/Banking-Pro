@@ -172,14 +172,18 @@
     }
     localStorage.setItem('bp_theme', mode);
   }
-  var savedTheme = localStorage.getItem('bp_theme') || 'dark';
+  var savedTheme = localStorage.getItem('bp_theme') || 'light';
   applyTheme(savedTheme);
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', function () {
-      var current = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-      applyTheme(current === 'light' ? 'dark' : 'light');
-    });
+  function setupThemeToggle(btn) {
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var current = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        applyTheme(current === 'light' ? 'dark' : 'light');
+      });
+    }
   }
+  setupThemeToggle(toggleBtn);
+  setupThemeToggle(document.getElementById('themeToggleMobile'));
 
   /* ── FAQ Accordion ── */
   document.querySelectorAll('.ft-accordion-header').forEach(function (btn) {

@@ -4,291 +4,153 @@ include_once("layouts/header.php");
 $breadcrumbs = [['Home','./dashboard.php'],['Banking','#'],['Domestic Transfer',null]];
 include_once('layouts/breadcrumb.php');
 require_once("./userPinfunction.php");
-//require_once("../include/config.php");
-//require_once("../include/loginFunction.php");
-//require_once("../include/userFunction.php");
-//require_once('../include/userClass.php');
-
-
-
-
-
-
 ?>
 
-<div id="content" class="main-content">
-    <div class="layout-px-spacing">
-        <div class="row layout-top-spacing">
-            <div class="col-md-8 offset-md-2">
-                <div class="card component-card">
-                    <div class="card-body">
-                        <div class="user-profile">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <?php
-                                        if($acct_stat === 'active'){
-                                    ?>
-                                    <?php
-                                   
-                                   if($page['transfer'] == '1'){
-                                    ?>
+<div class="bp-grid-2" style="gap:24px;align-items:start;">
 
+    <!-- Transfer Form -->
+    <div class="bp-card" style="grid-column:1/2;">
+        <div class="bp-card-header">
+            <h5 class="bp-card-title"><i class="ri-exchange-dollar-line" style="color:var(--bp-primary);margin-right:6px;"></i>Domestic Transfer</h5>
+        </div>
+        <div class="bp-card-body">
+            <?php if($acct_stat === 'active'): ?>
+            <?php if($page['transfer'] == '1'): ?>
+            <?php if($row['transfer'] == '1'): ?>
+            <form method="POST" enctype="multipart/form-data">
+                <div style="display:flex;flex-direction:column;gap:18px;">
 
-                                    <?php
-                                   
-                                   if( $row['transfer'] == '1'){
-                                    ?>
-
-
-                                    <h3 class="text-center">Domestic Transfer</h3>
-                                    <form method="POST" enctype="multipart/form-data">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Amount</label>
-                                                    <div class="input-group ">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text" id="basic-addon1"><svg
-                                                                    xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                    height="24" viewBox="0 0 24 24" fill="none"
-                                                                    stroke="currentColor" stroke-width="2"
-                                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                                    class="feather feather-dollar-sign">
-                                                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                                                    <path
-                                                                        d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6">
-                                                                    </path>
-                                                                </svg></span>
-                                                        </div>
-                                                        <input type="number" class="form-control" name="amount"
-                                                            placeholder="Amount" aria-label="notification"
-                                                            aria-describedby="basic-addon1" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Beneficiary Account Name</label>
-                                                    <div class="input-group ">
-                                                        <input type="text" class="form-control" name="acct_name"
-                                                            placeholder="Beneficiary Account Name"
-                                                            aria-label="notification" aria-describedby="basic-addon1"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Bank Name</label>
-                                                    <div class="input-group ">
-                                                        <input type="text" class="form-control" name="bank_name"
-                                                            placeholder="Bank Name" aria-label="notification"
-                                                            aria-describedby="basic-addon1" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Beneficiary Account No</label>
-                                                    <div class="input-group ">
-                                                        <input type="number" class="form-control" name="acct_number"
-                                                            placeholder="Beneficiary Account Name"
-                                                            aria-label="notification" aria-describedby="basic-addon1"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Select Account Type</label>
-                                                    <div class="input-group">
-                                                        <select name="acct_type" class='selectpicker' data-width='100%'
-                                                            required>
-                                                            <option value="">Select Account Type</option>
-                                                            <option value="Savings">Savings Account</option>
-                                                            <option value="Current">Current Account</option>
-                                                            <option value="Checking">Checking Account</option>
-                                                            <option value="Fixed Deposit">Fixed Deposit</option>
-                                                            <option value="Non Resident">Non Resident Account</option>
-                                                            <option value="Online Banking">Online Banking</option>
-                                                            <option value="Domicilary Account">Domicilary Account
-                                                            </option>
-                                                            <option value="Joint Account">Joint Account</option>
-                                                        </select>
-
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Naration/Purpose</label>
-                                                    <div class="input-group ">
-                                                        <textarea class="form-control mb-4" rows="3" id="textarea-copy"
-                                                            placeholder="Fund Description"
-                                                            name="acct_remarks"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-
-                                        <div class="row">
-                                            <div class="col-md-12 text-center">
-                                                <button class="btn btn-primary mb-2 mr-2" name="domestic-transfer"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-log-out">
-                                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                        <polyline points="16 17 21 12 16 7"></polyline>
-                                                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                                                    </svg> Transfer</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <?php
-                                        }else{
-                                    ?>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="alert custom-alert-1 mb-4 bg-danger border-danger" role="alert">
-
-                                                <div class="media">
-                                                    <div class="alert-icon">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            class="feather feather-alert-circle">
-                                                            <circle cx="12" cy="12" r="10"></circle>
-                                                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                            <line x1="12" y1="16" x2="12" y2="16"></line>
-                                                        </svg>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <div class="alert-text">
-                                                            <strong>Warning! </strong><span> You can not Make <span
-                                                                    class="text-uppercase "><b>Domestic Transfer</b></span>
-                                                                contact support.</span>
-                                                        </div>
-                                                        <div class="alert-btn">
-                                                            <a class="btn btn-default btn-dismiss"
-                                                                href="mailto:<?=$page['url_email'] ?>">Contact Us</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php
-                                        }
-                                    ?>
-
-<?php
-                                        }else{
-                                    ?>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="alert custom-alert-1 mb-4 bg-danger border-danger" role="alert">
-
-                                                <div class="media">
-                                                    <div class="alert-icon">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            class="feather feather-alert-circle">
-                                                            <circle cx="12" cy="12" r="10"></circle>
-                                                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                            <line x1="12" y1="16" x2="12" y2="16"></line>
-                                                        </svg>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <div class="alert-text">
-                                                            <strong>Warning! </strong><span> You can not Make <span
-                                                                    class="text-uppercase "><b>Transfer</b></span>
-                                                                contact support.</span>
-                                                        </div>
-                                                        <div class="alert-btn">
-                                                            <a class="btn btn-default btn-dismiss"
-                                                                href="mailto:<?=$page['url_email'] ?>">Contact Us</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php
-                                        }
-                                    ?>
-
-                                    <?php
-                                        }else{
-                                    ?>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="alert custom-alert-1 mb-4 bg-danger border-danger" role="alert">
-
-                                                <div class="media">
-                                                    <div class="alert-icon">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            class="feather feather-alert-circle">
-                                                            <circle cx="12" cy="12" r="10"></circle>
-                                                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                            <line x1="12" y1="16" x2="12" y2="16"></line>
-                                                        </svg>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <div class="alert-text">
-                                                            <strong>Warning! </strong><span> Account on <span
-                                                                    class="text-uppercase "><b>hold</b></span> contact
-                                                                support.</span>
-                                                        </div>
-                                                        <div class="alert-btn">
-                                                            <a class="btn btn-default btn-dismiss"
-                                                                href="mailto:<?=$page['url_email'] ?>">Contact Us</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php
-                                        }
-                                    ?>
-
-
+                    <div class="bp-grid-2" style="gap:14px;">
+                        <div>
+                            <label class="bp-form-label">Amount (<?= htmlspecialchars($currency) ?>)</label>
+                            <div class="bp-input-group">
+                                <span class="bp-input-prefix"><i class="ri-money-dollar-circle-line"></i></span>
+                                <input type="number" class="bp-form-input" name="amount" placeholder="Enter amount" style="padding-left:38px;" required>
                             </div>
-
+                            <div style="font-size:.73rem;color:var(--bp-text3);margin-top:3px;">
+                                Available: <strong style="color:var(--bp-green);"><?= $currency . number_format($avail_balance, 2) ?></strong>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="bp-form-label">Beneficiary Account Name</label>
+                            <input type="text" class="bp-form-input" name="acct_name" placeholder="Full name on account" required>
                         </div>
                     </div>
+
+                    <div class="bp-grid-2" style="gap:14px;">
+                        <div>
+                            <label class="bp-form-label">Bank Name</label>
+                            <input type="text" class="bp-form-input" name="bank_name" placeholder="Receiving bank name" required>
+                        </div>
+                        <div>
+                            <label class="bp-form-label">Beneficiary Account No</label>
+                            <input type="number" class="bp-form-input" name="acct_number" placeholder="Account number" required>
+                        </div>
+                    </div>
+
+                    <div class="bp-grid-2" style="gap:14px;">
+                        <div>
+                            <label class="bp-form-label">Account Type</label>
+                            <select name="acct_type" class="bp-form-input" required>
+                                <option value="">Select Account Type</option>
+                                <option value="Savings">Savings Account</option>
+                                <option value="Current">Current Account</option>
+                                <option value="Checking">Checking Account</option>
+                                <option value="Fixed Deposit">Fixed Deposit</option>
+                                <option value="Non Resident">Non Resident Account</option>
+                                <option value="Online Banking">Online Banking</option>
+                                <option value="Domicilary Account">Domicilary Account</option>
+                                <option value="Joint Account">Joint Account</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="bp-form-label">Narration / Purpose</label>
+                            <input type="text" class="bp-form-input" name="acct_remarks" placeholder="Fund description">
+                        </div>
+                    </div>
+
+                    <button type="submit" name="domestic-transfer" class="bp-btn-primary" style="width:100%;justify-content:center;padding:12px;">
+                        <i class="ri-send-plane-line"></i> Send Transfer
+                    </button>
+                </div>
+            </form>
+            <?php else: ?>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:20px;display:flex;align-items:flex-start;gap:12px;">
+                <i class="ri-error-warning-line" style="color:var(--bp-red);font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                    <div style="font-size:.88rem;font-weight:700;color:var(--bp-text);margin-bottom:4px;">Domestic Transfer Disabled</div>
+                    <div style="font-size:.8rem;color:var(--bp-text2);">You do not have permission to make domestic transfers. Contact support.</div>
+                    <a href="mailto:<?= htmlspecialchars($page['url_email']) ?>" class="bp-btn-outline" style="margin-top:12px;font-size:.8rem;padding:7px 14px;">
+                        <i class="ri-mail-line"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php else: ?>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:20px;display:flex;align-items:flex-start;gap:12px;">
+                <i class="ri-error-warning-line" style="color:var(--bp-red);font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                    <div style="font-size:.88rem;font-weight:700;color:var(--bp-text);margin-bottom:4px;">Service Unavailable</div>
+                    <div style="font-size:.8rem;color:var(--bp-text2);">Transfer service is currently unavailable. Please contact support.</div>
+                    <a href="mailto:<?= htmlspecialchars($page['url_email']) ?>" class="bp-btn-outline" style="margin-top:12px;font-size:.8rem;padding:7px 14px;">
+                        <i class="ri-mail-line"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php else: ?>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:20px;display:flex;align-items:flex-start;gap:12px;">
+                <i class="ri-error-warning-line" style="color:var(--bp-red);font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                    <div style="font-size:.88rem;font-weight:700;color:var(--bp-text);margin-bottom:4px;">Account on Hold</div>
+                    <div style="font-size:.8rem;color:var(--bp-text2);">Your account is on hold. Contact support to restore access.</div>
+                    <a href="mailto:<?= htmlspecialchars($page['url_email']) ?>" class="bp-btn-outline" style="margin-top:12px;font-size:.8rem;padding:7px 14px;">
+                        <i class="ri-mail-line"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Transfer Info -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="bp-card">
+            <div class="bp-card-header">
+                <h5 class="bp-card-title"><i class="ri-information-line" style="color:var(--bp-cyan);margin-right:6px;"></i>Transfer Information</h5>
+            </div>
+            <div class="bp-card-body">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <?php
+                    $tips = [
+                        ['icon'=>'ri-time-line','color'=>'var(--bp-orange)','text'=>'Domestic transfers are processed within 1-2 business days'],
+                        ['icon'=>'ri-shield-check-line','color'=>'var(--bp-green)','text'=>'Always verify beneficiary details before submitting'],
+                        ['icon'=>'ri-lock-line','color'=>'var(--bp-primary)','text'=>'All transfers are encrypted and secured end-to-end'],
+                        ['icon'=>'ri-alarm-warning-line','color'=>'var(--bp-red)','text'=>'Transfers cannot be reversed once processed'],
+                    ];
+                    foreach($tips as $t): ?>
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <i class="<?= $t['icon'] ?>" style="color:<?= $t['color'] ?>;font-size:1rem;margin-top:2px;flex-shrink:0;"></i>
+                        <span style="font-size:.8rem;color:var(--bp-text2);"><?= $t['text'] ?></span>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
 
+                <div style="margin-top:18px;background:rgba(67,97,238,0.06);border:1px solid rgba(67,97,238,0.15);border-radius:10px;padding:14px;">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bp-primary);margin-bottom:8px;">Account Balance</div>
+                    <div style="font-size:1.4rem;font-weight:800;color:var(--bp-text);"><?= $currency . number_format($acct_balance, 2) ?></div>
+                    <div style="font-size:.78rem;color:var(--bp-green);margin-top:2px;"><i class="ri-checkbox-circle-line"></i> Available: <?= $currency . number_format($avail_balance, 2) ?></div>
+                </div>
+
+                <div style="margin-top:14px;">
+                    <a href="./wire-transfer.php" class="bp-btn-outline" style="width:100%;justify-content:center;padding:10px;">
+                        <i class="ri-global-line"></i> Switch to Wire Transfer
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <?php
-            include_once("layouts/footer.php");
-            ?>
+</div>
+
+<?php include_once("layouts/footer.php"); ?>

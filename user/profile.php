@@ -4,63 +4,187 @@ include_once("layouts/header.php");
 $breadcrumbs = [['Home','./dashboard.php'],['Account','#'],['My Profile',null]];
 include_once('layouts/breadcrumb.php');
 
-
 if (!$_SESSION['acct_no']) {
     header("location:../login.php");
     die;
 }
-
 ?>
 
-                <!--  BEGIN CONTENT AREA  -->
-                <div id="content" class="main-content">
-                    <div class="layout-px-spacing">
+<div class="bp-grid-2" style="gap:24px;align-items:start;">
 
-                        <div class="row layout-spacing">
+    <!-- Left: Profile Card -->
+    <div class="bp-card" style="text-align:center;padding:32px 24px;">
+        <div style="position:relative;display:inline-block;margin-bottom:16px;">
+            <img src="../assets/profile/<?= htmlspecialchars($row['image'] ?? 'default.png') ?>"
+                 alt="Profile Photo"
+                 style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--bp-primary);box-shadow:0 0 0 6px rgba(67,97,238,0.1);">
+            <span style="position:absolute;bottom:4px;right:4px;width:18px;height:18px;border-radius:50%;background:<?= $acct_stat==='active' ? 'var(--bp-green)' : 'var(--bp-orange)' ?>;border:2px solid var(--bp-surface);"></span>
+        </div>
+        <h4 style="margin:0 0 4px;font-size:1.1rem;font-weight:800;color:var(--bp-text);"><?= htmlspecialchars($fullName) ?></h4>
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:3px 12px;border-radius:20px;background:<?= $acct_stat==='active' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)' ?>;color:<?= $acct_stat==='active' ? 'var(--bp-green)' : 'var(--bp-orange)' ?>;margin-bottom:8px;">
+            <i class="ri-shield-check-line"></i> <?= ucfirst(htmlspecialchars($acct_stat)) ?>
+        </span>
+        <div style="font-size:.82rem;color:var(--bp-text3);margin-bottom:24px;"><?= htmlspecialchars($row['acct_type'] ?? 'Checking Account') ?></div>
 
-                            <!-- Content -->
-                            <div class="col-xl-8 col-lg-6 col-md-5 col-sm-12 offset-md-2 layout-top-spacing">
+        <div style="background:var(--bp-surface2);border-radius:12px;padding:16px;text-align:left;border:1px solid var(--bp-border);margin-bottom:16px;">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(67,97,238,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-mail-line" style="color:var(--bp-primary);font-size:15px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--bp-text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Email</div>
+                        <div style="font-size:.82rem;color:var(--bp-text);font-weight:600;word-break:break-all;"><?= htmlspecialchars($row['acct_email'] ?? '') ?></div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-phone-line" style="color:var(--bp-green);font-size:15px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--bp-text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Phone</div>
+                        <div style="font-size:.82rem;color:var(--bp-text);font-weight:600;"><?= htmlspecialchars($row['acct_phone'] ?? '—') ?></div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(6,182,212,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-map-pin-line" style="color:var(--bp-cyan);font-size:15px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--bp-text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Location</div>
+                        <div style="font-size:.82rem;color:var(--bp-text);font-weight:600;"><?= htmlspecialchars(($row['state'] ?? '') . ', ' . ($row['country'] ?? '')) ?></div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-calendar-line" style="color:var(--bp-orange);font-size:15px;"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:.68rem;color:var(--bp-text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Date of Birth</div>
+                        <div style="font-size:.82rem;color:var(--bp-text);font-weight:600;"><?= htmlspecialchars($row['acct_dob'] ?? '—') ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                                <div class="user-profile layout-spacing">
-                                    <div class="widget-content widget-content-area">
-                                        <div class="d-flex justify-content-between">
-                                            <h3 class=""><?=ucwords($row['firstname'])." "."Profile"?></h3>
-                                            <a href="./edit-profile.php" class="mt-2 edit-profile"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></a>
-                                        </div>
-                                        <div class="text-center user-info">
-                                            <img src="../assets/profile/<?=$row['image']?>" width="20%" alt="avatar">
-                                            <p class=""><?= $fullName ?></p>
-                                        </div>
-                                        <div class="user-info-list">
+        <a href="./edit-profile.php" class="bp-btn-primary" style="width:100%;justify-content:center;">
+            <i class="ri-edit-line"></i> Edit Profile
+        </a>
+    </div>
 
-                                            <div class="">
-                                                <ul class="contacts-block list-unstyled">
-                                                    <li class="contacts-block__item">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-coffee"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg> <?= $row['acct_type'] ?>
-                                                    </li>
-                                                    <li class="contacts-block__item">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><?= $row['acct_dob'] ?>
-                                                    </li>
-                                                    <li class="contacts-block__item">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><?= $row['state'].", ".$row['country'] ?>
-                                                    </li>
-                                                    <li class="contacts-block__item">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> <?= $row['acct_phone'] ?>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+    <!-- Right: Account Details + Quick Actions -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
 
+        <!-- Account Info -->
+        <div class="bp-card">
+            <div class="bp-card-header">
+                <h5 class="bp-card-title"><i class="ri-bank-line" style="color:var(--bp-primary);margin-right:6px;"></i>Account Information</h5>
+            </div>
+            <div class="bp-card-body">
+                <div class="bp-acct-info">
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Account Number</span>
+                        <span class="bp-acct-row-val" style="font-family:monospace;"><?= htmlspecialchars($row['acct_no'] ?? '—') ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Account Type</span>
+                        <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_type'] ?? '—') ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Currency</span>
+                        <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_currency'] ?? '—') ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Total Balance</span>
+                        <span class="bp-acct-row-val bp-txt-primary"><?= $currency . number_format($acct_balance, 2) ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Available Balance</span>
+                        <span class="bp-acct-row-val bp-txt-green"><?= $currency . number_format($avail_balance, 2) ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Account Status</span>
+                        <span style="font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px;background:<?= $acct_stat==='active' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)' ?>;color:<?= $acct_stat==='active' ? 'var(--bp-green)' : 'var(--bp-orange)' ?>;">
+                            <?= ucfirst(htmlspecialchars($acct_stat)) ?>
+                        </span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Gender</span>
+                        <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_gender'] ?? '—') ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Occupation</span>
+                        <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_occupation'] ?? '—') ?></span>
+                    </div>
+                    <div style="height:1px;background:var(--bp-border);"></div>
+                    <div class="bp-acct-row">
+                        <span class="bp-acct-row-label">Address</span>
+                        <span class="bp-acct-row-val" style="text-align:right;max-width:60%;"><?= htmlspecialchars($row['acct_address'] ?? '—') ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Security & Settings -->
+        <div class="bp-card">
+            <div class="bp-card-header">
+                <h5 class="bp-card-title"><i class="ri-shield-keyhole-line" style="color:var(--bp-primary);margin-right:6px;"></i>Security & Settings</h5>
+            </div>
+            <div class="bp-card-body" style="padding:12px 16px;">
+                <a href="./pin.php" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:10px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='var(--bp-surface2)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(67,97,238,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-lock-password-line" style="color:var(--bp-primary);font-size:16px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.85rem;font-weight:600;color:var(--bp-text);">Change PIN</div>
+                        <div style="font-size:.75rem;color:var(--bp-text3);">Update your transaction PIN</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
+                </a>
+                <div style="height:1px;background:var(--bp-border);margin:0 8px;"></div>
+                <a href="./imf-code.php" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:10px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='var(--bp-surface2)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(6,182,212,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-key-2-line" style="color:var(--bp-cyan);font-size:16px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.85rem;font-weight:600;color:var(--bp-text);">IMF Code</div>
+                        <div style="font-size:.75rem;color:var(--bp-text3);">Manage your international transfer code</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
+                </a>
+                <div style="height:1px;background:var(--bp-border);margin:0 8px;"></div>
+                <a href="./edit-profile.php" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:10px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='var(--bp-surface2)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-user-settings-line" style="color:var(--bp-green);font-size:16px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.85rem;font-weight:600;color:var(--bp-text);">Edit Profile</div>
+                        <div style="font-size:.75rem;color:var(--bp-text3);">Update your personal information</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
+                </a>
+                <div style="height:1px;background:var(--bp-border);margin:0 8px;"></div>
+                <a href="./account-manager.php" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:10px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='var(--bp-surface2)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ri-user-star-line" style="color:var(--bp-orange);font-size:16px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.85rem;font-weight:600;color:var(--bp-text);">Account Manager</div>
+                        <div style="font-size:.75rem;color:var(--bp-text3);">View your dedicated account manager</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line" style="color:var(--bp-text3);"></i>
+                </a>
+            </div>
+        </div>
 
-                            </div>
+    </div>
+</div>
 
-
-
-
-
-                <?php
-include_once("layouts/footer.php");
-?>
+<?php include_once("layouts/footer.php"); ?>

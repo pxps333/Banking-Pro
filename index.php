@@ -52,7 +52,7 @@ include_once("front/header.php");
 
       <!-- Floating card 1: instant transfer -->
       <div class="ft-hero-float-card ft-hero-float-card-1">
-        <div class="ft-float-icon">⚡</div>
+        <div class="ft-float-icon"><i class="ri-flashlight-line" style="color:#f59e0b;"></i></div>
         <div class="ft-float-label">Instant Transfer</div>
         <div class="ft-float-val">$2,500.00</div>
         <div class="ft-float-sub">↑ Sent in 0.3s</div>
@@ -77,7 +77,7 @@ include_once("front/header.php");
           <div class="ft-phone-txns">
             <div class="ft-phone-txn-title">Recent Transactions</div>
             <div class="ft-phone-txn">
-              <div class="ft-phone-txn-icon" style="background:rgba(99,102,241,0.2)">🛒</div>
+              <div class="ft-phone-txn-icon" style="background:rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;"><i class="ri-shopping-cart-line" style="color:#6366f1;font-size:11px;"></i></div>
               <div class="ft-phone-txn-info">
                 <div class="ft-phone-txn-name">Amazon</div>
                 <div class="ft-phone-txn-date">Today, 9:41 AM</div>
@@ -85,7 +85,7 @@ include_once("front/header.php");
               <div class="ft-phone-txn-amt neg">−$89.99</div>
             </div>
             <div class="ft-phone-txn">
-              <div class="ft-phone-txn-icon" style="background:rgba(16,185,129,0.2)">💸</div>
+              <div class="ft-phone-txn-icon" style="background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;"><i class="ri-send-plane-fill" style="color:#10b981;font-size:11px;"></i></div>
               <div class="ft-phone-txn-info">
                 <div class="ft-phone-txn-name">Wire Received</div>
                 <div class="ft-phone-txn-date">Yesterday</div>
@@ -93,7 +93,7 @@ include_once("front/header.php");
               <div class="ft-phone-txn-amt pos">+$5,000</div>
             </div>
             <div class="ft-phone-txn">
-              <div class="ft-phone-txn-icon" style="background:rgba(249,115,22,0.2)">☕</div>
+              <div class="ft-phone-txn-icon" style="background:rgba(249,115,22,0.2);display:flex;align-items:center;justify-content:center;"><i class="ri-cup-line" style="color:#f97316;font-size:11px;"></i></div>
               <div class="ft-phone-txn-info">
                 <div class="ft-phone-txn-name">Starbucks</div>
                 <div class="ft-phone-txn-date">Dec 19</div>
@@ -106,7 +106,7 @@ include_once("front/header.php");
 
       <!-- Floating card 2: savings -->
       <div class="ft-hero-float-card ft-hero-float-card-2">
-        <div class="ft-float-icon">🔒</div>
+        <div class="ft-float-icon"><i class="ri-safe-2-line" style="color:#10b981;"></i></div>
         <div class="ft-float-label">Savings Vault</div>
         <div class="ft-float-val">$12,200</div>
         <div class="ft-float-sub">4.5% APY</div>
@@ -291,28 +291,28 @@ include_once("front/header.php");
         </p>
         <ul class="ft-showcase-list">
           <li>
-            <span class="icon">📊</span>
+            <span class="icon"><i class="ri-pie-chart-2-line" style="color:#6366f1;"></i></span>
             <div>
               <strong>Real-time Spending Charts</strong>
               <span>Interactive category breakdown updated every transaction</span>
             </div>
           </li>
           <li>
-            <span class="icon">💳</span>
+            <span class="icon"><i class="ri-bank-card-line" style="color:#8b5cf6;"></i></span>
             <div>
               <strong>Card Management</strong>
               <span>Freeze, unfreeze, set limits, and create virtual cards in seconds</span>
             </div>
           </li>
           <li>
-            <span class="icon">🔔</span>
+            <span class="icon"><i class="ri-notification-3-line" style="color:#06b6d4;"></i></span>
             <div>
               <strong>Instant Notifications</strong>
               <span>Push alerts for every transaction the moment it happens</span>
             </div>
           </li>
           <li>
-            <span class="icon">📱</span>
+            <span class="icon"><i class="ri-smartphone-line" style="color:#10b981;"></i></span>
             <div>
               <strong>Apple Pay &amp; Google Pay</strong>
               <span>Tap to pay anywhere in the world with your digital wallet</span>
@@ -332,35 +332,35 @@ include_once("front/header.php");
 
       <!-- Visual -->
       <div class="ft-security-visual ft-reveal" aria-hidden="true">
-        <div class="ft-security-shield">🛡️</div>
+        <div class="ft-security-shield"><i class="ri-shield-check-fill" style="color:#10b981;font-size:1.8rem;"></i></div>
         <div>
           <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px">Bank-Grade Security</div>
           <div style="font-size:.82rem;color:var(--text-secondary)">Your money and data are protected by multiple layers of military-grade encryption and real-time fraud detection.</div>
         </div>
         <div class="ft-security-badges">
           <div class="ft-security-badge">
-            <span class="ft-security-badge-icon">🔐</span>
+            <span class="ft-security-badge-icon"><i class="ri-lock-password-line" style="color:#6366f1;"></i></span>
             <div>
               <strong>256-bit AES Encryption</strong>
               <span>All data encrypted in transit and at rest</span>
             </div>
           </div>
           <div class="ft-security-badge">
-            <span class="ft-security-badge-icon">👆</span>
+            <span class="ft-security-badge-icon"><i class="ri-fingerprint-line" style="color:#06b6d4;"></i></span>
             <div>
               <strong>Biometric Authentication</strong>
               <span>Face ID, fingerprint, and PIN protection</span>
             </div>
           </div>
           <div class="ft-security-badge">
-            <span class="ft-security-badge-icon">🧠</span>
+            <span class="ft-security-badge-icon"><i class="ri-robot-line" style="color:#f59e0b;"></i></span>
             <div>
               <strong>AI Fraud Detection</strong>
               <span>24/7 monitoring flags suspicious activity instantly</span>
             </div>
           </div>
           <div class="ft-security-badge">
-            <span class="ft-security-badge-icon">✅</span>
+            <span class="ft-security-badge-icon"><i class="ri-bank-line" style="color:#10b981;"></i></span>
             <div>
               <strong>FDIC Insured up to $250,000</strong>
               <span>Your deposits are federally protected</span>

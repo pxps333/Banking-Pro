@@ -5,228 +5,162 @@ include("../include/vendor/autoload.php");
 include_once("layouts/header.php");
 $breadcrumbs = [['Home','./dashboard.php'],['Banking','#'],['Withdrawal',null]];
 include_once('layouts/breadcrumb.php');
-//require_once("../include/config.php");
-//require_once("../include/userFunction.php");
-//require_once('../include/userClass.php');
-
 
 $email = $row['acct_email'];
 
-
 if(isset($_POST['withdraw'])){
-    // $user_id = $_POST['user_id'];
-    // $sender_name = $_POST['sender_name'];
-    // $amount = $_POST['amount'];
-    // $description = $_POST['description'];
-    // $created_at = $_POST['created_at'];
-    // $time_created = $_POST['time_created'];
-    $user_id = userDetails('id');
-    $amount = $_POST['amount'];
+    $user_id        = userDetails('id');
+    $amount         = $_POST['amount'];
     $withdraw_method = $_POST['withdraw_method'];
     $wallet_address = $_POST['wallet_address'];
+    $trans_type     = 2;
 
-    $trans_type = 2;
     $checkUser = $conn->query("SELECT * FROM users WHERE id='$user_id'");
-    $result = $checkUser->fetch(PDO::FETCH_ASSOC);
+    $result    = $checkUser->fetch(PDO::FETCH_ASSOC);
 
     if($amount > $result['acct_balance']){
         toast_alert('error','Insufficient Balance');
-    }else {
-
-
-
-
+    } else {
         $available_balance = ($result['acct_balance'] - $amount);
-//        $amount-=$result['acct_balance'];
+        $sql    = "UPDATE users SET acct_balance=:available_balance WHERE id=:user_id";
+        $addUp  = $conn->prepare($sql);
+        $addUp->execute(['available_balance'=>$available_balance,'user_id'=>$user_id]);
 
-        $sql = "UPDATE users SET acct_balance=:available_balance WHERE id=:user_id";
-        $addUp = $conn->prepare($sql);
-        $addUp->execute([
-            'available_balance' => $available_balance,
-            'user_id'=>$user_id
+        $trans_id = uniqid();
+        $sql = "INSERT INTO withdrawal (user_id,amount,withdraw_method,wallet_address,reference_id,trans_type) VALUES(:user_id,:amount,:withdraw_method,:wallet_address,:reference_id,:trans_type)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            'user_id'         => $user_id,
+            'amount'          => $amount,
+            'withdraw_method' => $withdraw_method,
+            'wallet_address'  => $wallet_address,
+            'reference_id'    => $trans_id,
+            'trans_type'      => $trans_type,
         ]);
 
-            $trans_id = uniqid();
-            $sql = "INSERT INTO withdrawal (user_id,amount,withdraw_method,wallet_address,reference_id,trans_type) VALUES(:user_id,:amount,:withdraw_method,:wallet_address,:reference_id,:trans_type)";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                'user_id'=>$user_id,
-                'amount' => $amount,
-                'withdraw_method' => $withdraw_method,
-                'wallet_address' => $wallet_address,
-                'reference_id'=>$trans_id,
-                'trans_type' => $trans_type,
-            ]);
+        $full_name  = $user['firstname'] . " " . $user['lastname'];
+        $APP_NAME   = WEB_TITLE;
+        $APP_URL    = WEB_URL;
+        $user_email = $user['acct_email'];
+        $message    = $sendMail->WithdrawMsg($currency, $full_name, $amount, $withdraw_method, $wallet_address, $APP_NAME);
+        $subject    = "Withdrawal Notification - $APP_NAME";
+        $email_message->send_mail($user_email, $message, $subject);
+        $email_message->send_mail(WEB_EMAIL, $message, $subject);
 
-            $full_name = $user['firstname']. " ". $user['lastname'];
-                        // $APP_URL = APP_URL;
-                        $APP_NAME = WEB_TITLE;
-                        $APP_URL = WEB_URL;
-             $user_email = $user['acct_email'];
-
-             $message = $sendMail->WithdrawMsg($currency, $full_name, $amount, $withdraw_method, $wallet_address, $APP_NAME);
-
-
-             $subject = "Withdrawal Notification". "-". $APP_NAME;
-             $email_message->send_mail($user_email, $message, $subject);
-
-             $subject = "User Withdrawal Notification". "-". $APP_NAME;
-             $email_message->send_mail(WEB_EMAIL, $message, $subject);
-
-        if (true) {
-            toast_alert('success', 'Your Withdrawal has been processed', 'Pending');
-        } else {
-            toast_alert('error', 'Sorry Something Went Wrong');
-        }
-        
-            // header("Location:./withdrawal-transaction.php");
-            // exit;
-        
+        toast_alert('success', 'Your Withdrawal request has been submitted', 'Pending');
     }
 }
-
-
 ?>
 
-<div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="bp-grid-2" style="gap:24px;align-items:start;">
 
-        <div class="row layout-top-spacing">
-            <div class="col-md-8 offset-md-2">
-                <div class="card component-card">
-                    <div class="card-body">
-                        <div class="user-profile">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <?php
-                                    if($acct_stat === 'active'){
-                                    ?>
-                                    <form method="POST"  enctype="multipart/form-data">
-                                        <p>Crypto Withdrawal</p>
-                                        <div class="form-group mb-4 mt-4">
-                                            <label for="">Amount</label>
-                                            <div class="input-group ">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text" id="basic-addon1"><svg
-                                                                xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                height="24" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round"
-                                                                class="feather feather"><line x1="12" y1="1"
-                                                                                                          x2="12"
-                                                                                                          y2="23"></line><path
-                                                                    d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span>
-                                                </div>
+    <!-- Crypto Withdrawal Form -->
+    <div class="bp-card">
+        <div class="bp-card-header">
+            <h5 class="bp-card-title"><i class="ri-hand-coin-line" style="color:var(--bp-primary);margin-right:6px;"></i>Crypto Withdrawal</h5>
+        </div>
+        <div class="bp-card-body">
+            <?php if($acct_stat === 'active'): ?>
+            <form method="POST" enctype="multipart/form-data">
+                <div style="display:flex;flex-direction:column;gap:18px;">
 
-                                                <input type="number" class="form-control" name="amount" placeholder="Amount"
-                                                       aria-label="notification" aria-describedby="basic-addon1">
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
+                    <div>
+                        <label class="bp-form-label">Amount (<?= htmlspecialchars($currency) ?>)</label>
+                        <div class="bp-input-group">
+                            <span class="bp-input-prefix"><i class="ri-money-dollar-circle-line"></i></span>
+                            <input type="number" class="bp-form-input" name="amount" placeholder="Enter amount" required>
+                        </div>
+                        <div style="font-size:.75rem;color:var(--bp-text3);margin-top:4px;">
+                            Available: <strong style="color:var(--bp-green);"><?= $currency . number_format($avail_balance, 2) ?></strong>
+                        </div>
+                    </div>
 
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Withdrawal Type</label>
-                                                    <div class="input-group">
-                                                       <select name="withdraw_method" required class='selectpicker' onchange="crypto_type(this.value)" data-width='100%'>
-                                                           <option>Select</option>
-                                                           <?php
-                                                            $sql = $conn->query("SELECT * FROM crypto_currency ORDER BY crypto_name");
-                                                            while($rs = $sql->fetch(PDO::FETCH_ASSOC)){
-                                                                $data[] = array(
-                                                                        'id'=>$rs['id'],
-                                                                        'wallet_address'=>$rs['wallet_address']
-                                                                );
-                                                                ?>
-                                                                <option value="<?= $rs['id'] ?>"><?= ucwords($rs['crypto_name']) ?></option>
-                                                                <?php
-                                                            }
-                                                           ?>
-                                                       </select>
-
-
-
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group mb-4 mt-4">
-                                                    <label for="">Wallet Address</label>
-                                                    <div class="input-group ">
-                                                        <input type="text" class="form-control" name="wallet_address"  required placeholder="Wallet Address"
-                                                               aria-label="notification" aria-describedby="basic-addon1">
-                                                         </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!--<div class="row">-->
-                                        <!--    <div class="col-md-12">-->
-                                        <!--        <div class="widget-content widget-content-area">-->
-                                        <!--            <div class="custom-file-container" data-upload-id="myFirstImage">-->
-                                        <!--                <label>Upload (Single File) <a href="javascript:void(0)" class="custom-file-container__image-clear" title="Clear Image">x</a></label>-->
-                                        <!--                <label class="custom-file-container__custom-file" >-->
-                                        <!--                    <input type="file" class="custom-file-container__custom-file__custom-file-input" name="image" accept="image/*">-->
-                                        <!--                    <input type="hidden" name="MAX_FILE_SIZE" value="10485760" />-->
-                                        <!--                    <span class="custom-file-container__custom-file__custom-file-control"></span>-->
-                                        <!--                </label>-->
-                                        <!--                <div class="custom-file-container__image-preview"></div>-->
-                                        <!--            </div>-->
-                                        <!--    </div>-->
-                                        <!--</div>-->
-
-                                        <div class="row">
-                                            <div class="col-md-12 text-center">
-                                                <button class="btn btn-primary mb-2 mr-2" name="withdraw" >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                    <polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Withdraw Funds</button>
-
-
-                                                    <a href="./bank-withdraw.php" class="btn btn-danger mb-2 mr-2" ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                    <polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Use Bank Withdrawal</a>
-                                            </div>
-                                        </div>
-                                </div>
-                                        
-                                </form>
-                            </div>
-                                <?php
-                                }else{
-                                ?>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div  class="alert custom-alert-1 mb-4 bg-danger border-danger" role="alert">
-
-                                            <div class="media">
-                                                <div class="alert-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg>
-                                                </div>
-                                                <div class="media-body">
-                                                    <div class="alert-text">
-                                                        <strong>Warning! </strong><span> Account on <span class="text-uppercase "><b>hold</b></span> contact support.</span>
-                                                    </div>
-                                                    <div class="alert-btn">
-                                                        <a class="btn btn-default btn-dismiss" href="mailto:<?=$url_email?>">Contact Us</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                </div>
+                    <div>
+                        <label class="bp-form-label">Withdrawal Method</label>
+                        <select name="withdraw_method" class="bp-form-input" required>
+                            <option value="">Select crypto type</option>
                             <?php
+                            $sql = $conn->query("SELECT * FROM crypto_currency ORDER BY crypto_name");
+                            while($rs = $sql->fetch(PDO::FETCH_ASSOC)){
+                                $data[] = ['id'=>$rs['id'],'wallet_address'=>$rs['wallet_address']];
+                                echo '<option value="'.htmlspecialchars($rs['id']).'">'.htmlspecialchars(ucwords($rs['crypto_name'])).'</option>';
                             }
                             ?>
+                        </select>
+                    </div>
 
-                            </div>
+                    <div>
+                        <label class="bp-form-label">Your Wallet Address</label>
+                        <input type="text" class="bp-form-input" name="wallet_address" placeholder="Enter your wallet address" required>
+                    </div>
+
+                    <button type="submit" name="withdraw" class="bp-btn-primary" style="width:100%;justify-content:center;padding:12px;">
+                        <i class="ri-hand-coin-line"></i> Submit Withdrawal
+                    </button>
+                </div>
+            </form>
+            <?php else: ?>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:20px;display:flex;align-items:flex-start;gap:12px;">
+                <i class="ri-error-warning-line" style="color:var(--bp-red);font-size:1.3rem;flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                    <div style="font-size:.88rem;font-weight:700;color:var(--bp-text);margin-bottom:4px;">Account on Hold</div>
+                    <div style="font-size:.8rem;color:var(--bp-text2);">Your account is currently on hold. Contact support to continue.</div>
+                    <a href="mailto:<?= htmlspecialchars($url_email) ?>" class="bp-btn-outline" style="margin-top:12px;font-size:.8rem;padding:7px 14px;">
+                        <i class="ri-mail-line"></i> Contact Support
+                    </a>
                 </div>
             </div>
-
+            <?php endif; ?>
         </div>
     </div>
 
+    <!-- Bank Withdrawal + Info -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
 
-    <?php
-    include_once('layouts/footer.php')
-    ?>
+        <!-- Bank Withdrawal Link -->
+        <div class="bp-card">
+            <div class="bp-card-header">
+                <h5 class="bp-card-title"><i class="ri-bank-line" style="color:var(--bp-green);margin-right:6px;"></i>Bank Withdrawal</h5>
+            </div>
+            <div class="bp-card-body">
+                <p style="font-size:.83rem;color:var(--bp-text3);margin-bottom:16px;">Prefer to withdraw directly to your bank account? Use our bank withdrawal option.</p>
+                <a href="./bank-withdraw.php" class="bp-btn-outline" style="width:100%;justify-content:center;padding:12px;">
+                    <i class="ri-bank-line"></i> Use Bank Withdrawal
+                </a>
+            </div>
+        </div>
+
+        <!-- Withdrawal Info -->
+        <div class="bp-card">
+            <div class="bp-card-header">
+                <h5 class="bp-card-title"><i class="ri-information-line" style="color:var(--bp-cyan);margin-right:6px;"></i>Withdrawal Info</h5>
+            </div>
+            <div class="bp-card-body">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <?php
+                    $tips = [
+                        ['icon'=>'ri-time-line','color'=>'var(--bp-orange)','text'=>'Withdrawals are processed within 1-3 business days'],
+                        ['icon'=>'ri-shield-check-line','color'=>'var(--bp-green)','text'=>'Only withdraw to wallets you own and control'],
+                        ['icon'=>'ri-wallet-3-line','color'=>'var(--bp-primary)','text'=>'Ensure your wallet address is correct before submitting'],
+                        ['icon'=>'ri-alarm-warning-line','color'=>'var(--bp-red)','text'=>'Withdrawals cannot be reversed once processed'],
+                    ];
+                    foreach($tips as $t): ?>
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <i class="<?= $t['icon'] ?>" style="color:<?= $t['color'] ?>;font-size:1rem;margin-top:2px;flex-shrink:0;"></i>
+                        <span style="font-size:.8rem;color:var(--bp-text2);"><?= $t['text'] ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div style="margin-top:16px;background:rgba(67,97,238,0.06);border:1px solid rgba(67,97,238,0.15);border-radius:10px;padding:14px;">
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bp-primary);margin-bottom:8px;">Current Balance</div>
+                    <div style="font-size:1.4rem;font-weight:800;color:var(--bp-text);"><?= $currency . number_format($acct_balance, 2) ?></div>
+                    <div style="font-size:.78rem;color:var(--bp-green);margin-top:2px;"><i class="ri-checkbox-circle-line"></i> Available: <?= $currency . number_format($avail_balance, 2) ?></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<?php include_once('layouts/footer.php'); ?>

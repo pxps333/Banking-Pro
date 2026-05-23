@@ -53,9 +53,6 @@
         </tr>
         <?php endwhile; ?>
         </tbody>
-        <tfoot>
-          <tr><th>S/N</th><th>Applicant</th><th>Amount</th><th>Remarks</th><th>Status</th><th>Date</th><th></th></tr>
-        </tfoot>
       </table>
     </div>
   </div>

@@ -1,118 +1,68 @@
-<?php
-include_once("./layout/header.php");
-//require_once("./include/adminloginFunction.php");
-//include_once("../include/config.php");
+<?php include_once("./layout/header.php"); ?>
 
-
-// virtual deposit
-$sql7 = "SELECT * FROM v_bank WHERE id='48'";
-$stmt = $conn->prepare($sql7);
-$stmt->execute();
-
-$deposit = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$routine_no = $deposit['routine_no'];
-$bank_name = $deposit['bank_name'];
-$swift_code = $deposit['swift_code'];
-$acct_no = $deposit['acct_no'];
-
-
-if(isset($_POST['save_deposit'])){
-    $acct_no = $_POST['acct_no'];
-    $bank_name = $_POST['bank_name'];
-    $routine_no = $_POST['routine_no'];
-    $swift_code = $_POST['swift_code'];
-    $id="48";
-    $sql = "UPDATE v_bank SET acct_no=:acct_no,bank_name=:bank_name,routine_no=:routine_no,swift_code=:swift_code WHERE id=:id";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        'acct_no'=>$acct_no,
-        'bank_name'=>$bank_name,
-        'routine_no'=>$routine_no,
-        'swift_code'=>$swift_code,
-        'id'=>$id
-    ]);
-
-    if(true){
-        toast_alert('success','Virtual updated successfully','Approved');
-    }else{
-        toast_alert('error','Sorry something went wrong');
-    }
-    
-
-}
-
-?>
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
-        <div class="account-settings-container layout-top-spacing">
+<div class="layout-px-spacing">
 
-            <div class="account-content">
-                <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll" data-offset="-100">
-                    <div class="row">
-                        
-        <div class="col-xl-6 col-lg-6 col-md-6 offset-md-3  layout-spacing">
-            <form method="POST">
-                <div class="col-xl-12 col-lg-12 col-md-8 mt-md-0 mt-4">
-                    <div class="form">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    <label for="">Bank Name</label>
-                                    <input type="text" class="form-control mb-4" value="<?= $deposit['bank_name'] ?>" name="bank_name">
-                                </div>
-                            </div>
-                           
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Deposit Records</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Deposits</span></nav>
+  </div>
+</div>
 
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    <label for="">Routine Number</label>
-                                    <input type="text" class="form-control mb-4" value="<?= $deposit['routine_no'] ?>" name="routine_no">
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    <label for="">Account No</label>
-                                    <input type="text" class="form-control mb-4" value="<?= $deposit['acct_no'] ?>" name="acct_no">
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    <label for="">Swift Code</label>
-                                    <input type="text" class="form-control mb-4" value="<?= $deposit['swift_code'] ?>" name="swift_code">
-                                </div>
-                            </div>
-                           
-                        </div>
-
-                        <div class="col-md-12 text-center">
-                            <button class="btn btn-primary text-center" name="save_deposit" >Save</button>
-                        </div>
-
-
-
-
-
-
-
-                    </div>
-                </div>
-            </form>
-
-        </div>
-        
-         </div>
-                </div>
-            </div>
-
-
-
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-arrow-down-circle-line"></i> All Deposit Requests</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Amount</th>
+            <th>Reference</th>
+            <th>Billing Code</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT d.*, u.firstname, u.lastname, u.acct_email, u.acct_currency FROM deposit d LEFT JOIN users u ON d.user_id = u.id ORDER BY d.id DESC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $currency = currency($row);
+            $fullName = ucwords($row['firstname'].' '.$row['lastname']);
+            $ds = $row['dep_status'];
+            if ($ds == '0') { $badge = '<span class="adm-badge adm-badge-warning">Processing</span>'; }
+            elseif ($ds == '1') { $badge = '<span class="adm-badge adm-badge-success">Approved</span>'; }
+            elseif ($ds == '2') { $badge = '<span class="adm-badge adm-badge-info">On Hold</span>'; }
+            else { $badge = '<span class="adm-badge adm-badge-danger">Declined</span>'; }
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:600"><?= htmlspecialchars($fullName) ?></td>
+          <td style="font-size:.83rem;color:var(--adm-text2)"><?= htmlspecialchars($row['acct_email']) ?></td>
+          <td style="font-weight:700"><?= htmlspecialchars($currency.$row['amount']) ?></td>
+          <td><code style="font-size:.75rem;background:var(--adm-surface2);padding:2px 6px;border-radius:5px;border:1px solid var(--adm-border)"><?= htmlspecialchars($row['reference_id']) ?></code></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['billing_code'] ?? '—') ?></td>
+          <td><?= $badge ?></td>
+          <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($row['createdAt']) ?></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Name</th><th>Email</th><th>Amount</th><th>Reference</th><th>Billing Code</th><th>Status</th><th>Date</th></tr>
+        </tfoot>
+      </table>
     </div>
+  </div>
+</div>
+
 </div>
 </div>
-<?php
-include_once("./layout/footer.php");
-?>
+<?php include_once("./layout/footer.php"); ?>

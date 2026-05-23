@@ -75,6 +75,8 @@ $adminName = $row['firstname']." ".$row['lastname'];
     <link href="./plugins/sweetalerts/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <link href="./plugins/sweetalerts/sweetalert.css" rel="stylesheet" type="text/css" />
     <link href="./assets/css/components/custom-sweetalert.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="./assets/css/admin_modern.css" rel="stylesheet" type="text/css" />
     <script src="./plugins/sweetalerts/promise-polyfill.js"></script>
     <script src="./assets/js/libs/jquery-3.1.1.min.js"></script>
 
@@ -339,9 +341,9 @@ $adminName = $row['firstname']." ".$row['lastname'];
                     <li>
                         <a href="./crypto-currrency.php"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>Deposit Method </a>
                     </li>
-					
-					
-					 <li>
+                                        
+                                        
+                                         <li>
                         <a href="./deposits.php"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>Virtual Deposit </a>
                     </li>
 

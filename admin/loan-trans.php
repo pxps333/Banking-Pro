@@ -1,94 +1,66 @@
-<?php
-include_once("./layout/header.php");
+<?php include_once("./layout/header.php"); ?>
 
-?>
-
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>Loan Request</h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Loan Requests</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Loan Requests</span></nav>
+  </div>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-bank-line"></i> All Loan Requests</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Applicant</th>
+            <th>Amount</th>
+            <th>Remarks</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM loan LEFT JOIN users ON loan.acct_id = users.id ORDER BY loan.loan_id DESC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $currency = currency($row);
+            $fullName = ucwords($row['firstname'].' '.$row['lastname']);
+            $ls = $row['loan_status'];
+            if ($ls == '0') { $badge = '<span class="adm-badge adm-badge-warning">Processing</span>'; }
+            elseif ($ls == '1') { $badge = '<span class="adm-badge adm-badge-success">Approved</span>'; }
+            elseif ($ls == '2') { $badge = '<span class="adm-badge adm-badge-info">On Hold</span>'; }
+            else { $badge = '<span class="adm-badge adm-badge-danger">Declined</span>'; }
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:600"><?= htmlspecialchars($fullName) ?></td>
+          <td style="font-weight:700"><?= htmlspecialchars($currency.$row['amount']) ?></td>
+          <td style="font-size:.83rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><?= htmlspecialchars($row['loan_remarks']) ?></td>
+          <td><?= $badge ?></td>
+          <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($row['created_at']) ?></td>
+          <td><a href="./viewloan-trans.php?id=<?= htmlspecialchars($row['loan_reference_id']) ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Applicant</th><th>Amount</th><th>Remarks</th><th>Status</th><th>Date</th><th></th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-
-                                <th>Amount</th>
-                                <th>Loan Remarks</th>
-                                <th>Status</th>
-                                <th>Created At</th>
-                                <th class="text-center dt-no-sorting">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sql = "SELECT * FROM loan LEFT JOIN users ON loan.acct_id = users.id order by loan.loan_id DESC ";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-                            $sn=1;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                $dom_status = domesticTransaction($row);
-
-                                $currency = currency($row);
-
-                                if($row['loan_status'] === '0'){
-                                    $tran_status = '<span class="text-success">Processing</span>';
-                                }else if($row['loan_status'] === '1'){
-                                    $tran_status = '<span class="text-success">Approved</span>';
-                                }else if($row['loan_status']=== '3'){
-                                    $tran_status = '<span class="text-danger">Declined</span>';
-                                }else if($row['loan_status']=== '2') {
-                                    $tran_status = '<span class="text-danger">On Hold</span>';
-                                }
-
-                                $_SESSION['loan_id'] = $row['acct_id'];
-
-                                $fullName = $row['firstname']." ".$row['lastname'];
-                                ?>
-                                <tr>
-                                    <td><?= $sn++ ?></td>
-
-                                    <td><?=$currency.$row['amount'] ?></td>
-                                    <td><?= $row['loan_remarks'] ?></td>
-                                    <td><?= $tran_status ?></td>
-                                    <td><?= $row['created_at'] ?></td>
-                                    <td class="text-center"><a href="./viewloan-trans.php?id=<?php echo $row['loan_reference_id']; ?>" class="btn btn-primary">View</a> </td>
-                                </tr>
-                                <?php
-                            }
-                            ?>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-
-                                <th>Amount</th>
-                                <th>Loan Remarks</th>
-                                <th>Status</th>
-                                <th>Created At</th>
-                                <th class="text-center dt-no-sorting">Action</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            <?php
-            include_once("./layout/footer.php");
-            ?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

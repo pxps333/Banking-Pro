@@ -86,6 +86,36 @@ toast_alert("error","Invalid login details");
                     
                      if (true) {
                         $_SESSION['login'] = $user['acct_no'];
+
+                        /* ── 2FA check ── */
+                        if (!empty($user['two_fa_enabled'])) {
+                            // Generate 6-digit OTP
+                            $otp    = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                            $expiry = time() + 600; // 10 minutes
+                            $otpStmt = $conn->prepare("UPDATE users SET two_fa_otp=:otp, two_fa_otp_expiry=:exp WHERE id=:id");
+                            $otpStmt->execute(['otp' => $otp, 'exp' => $expiry, 'id' => $user['id']]);
+
+                            // Send OTP email
+                            $full_name  = $user['firstname'].' '.$user['lastname'];
+                            $APP_NAME   = $pageTitle;
+                            $otp_subject = "Your 2FA Code — $APP_NAME";
+                            $otp_message = "
+                            <div style='font-family:Inter,sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#0d1117;border-radius:16px;color:#e2e8f0'>
+                              <h2 style='font-size:1.2rem;font-weight:800;margin-bottom:8px'>Two-Factor Authentication</h2>
+                              <p style='color:#94a3b8;margin-bottom:24px'>Hi ".htmlspecialchars($full_name).", here is your one-time verification code:</p>
+                              <div style='background:#161b2e;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px'>
+                                <span style='font-size:2.5rem;font-weight:800;letter-spacing:0.2em;color:#4361ee'>$otp</span>
+                              </div>
+                              <p style='color:#64748b;font-size:.82rem'>This code expires in <strong style='color:#e2e8f0'>10 minutes</strong>. Do not share it with anyone.</p>
+                              <p style='color:#64748b;font-size:.78rem;margin-top:16px'>If you did not request this, please contact support immediately.</p>
+                            </div>";
+                            $email_message->send_mail($user['acct_email'], $otp_message, $otp_subject);
+
+                            $_SESSION['2fa_pending'] = true;
+                            header("Location:./two-fa.php");
+                            exit;
+                        }
+
                         header("Location:./pin.php");
                         exit;
                     }

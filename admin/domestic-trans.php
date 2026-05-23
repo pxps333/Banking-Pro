@@ -1,91 +1,69 @@
-<?php
-include_once("./layout/header.php");
-?>
+<?php include_once("./layout/header.php"); ?>
 
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>Domestic Transaction</h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Domestic Transactions</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Domestic Transfers</span></nav>
+  </div>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-exchange-line"></i> All Domestic Transfer Records</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Amount</th>
+            <th>Bank Name</th>
+            <th>Account Name</th>
+            <th>Account No</th>
+            <th>Account Type</th>
+            <th>Trans Type</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM domestic_transfer LEFT JOIN users ON domestic_transfer.acct_id = users.id ORDER BY domestic_transfer.dom_id DESC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $currency = currency($row);
+            $ds = $row['dom_status'];
+            if ($ds == '0') { $badge = '<span class="adm-badge adm-badge-warning">Processing</span>'; }
+            elseif ($ds == '1') { $badge = '<span class="adm-badge adm-badge-success">Approved</span>'; }
+            elseif ($ds == '2') { $badge = '<span class="adm-badge adm-badge-info">On Hold</span>'; }
+            else { $badge = '<span class="adm-badge adm-badge-danger">Cancelled</span>'; }
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:700"><?= htmlspecialchars($currency.$row['amount']) ?></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['bank_name']) ?></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['acct_name']) ?></td>
+          <td><code style="font-size:.78rem;background:var(--adm-surface2);padding:2px 6px;border-radius:5px;border:1px solid var(--adm-border)"><?= htmlspecialchars($row['acct_number']) ?></code></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['acct_type']) ?></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars(ucwords($row['trans_type'])) ?></td>
+          <td><?= $badge ?></td>
+          <td><a href="./view-domtrans.php?id=<?= htmlspecialchars($row['refrence_id']) ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Amount</th><th>Bank</th><th>Account Name</th><th>Account No</th><th>Acct Type</th><th>Trans Type</th><th>Status</th><th></th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-
-                                <th>Amount</th>
-                                <th>Bank Name</th>
-                                <th>Account Name</th>
-                                <th>Account Number</th>
-                                <th>Account Type</th>
-                                <th>Transfer Type</th>
-                                <th>Transfer Status</th>
-                                <th class="text-center dt-no-sorting">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sql = "SELECT * FROM domestic_transfer LEFT JOIN users ON domestic_transfer.acct_id = users.id order by domestic_transfer.dom_id DESC ";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-                            $sn=1;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                $dom_status = domesticTransaction($row);
-
-                                $_SESSION['dom_id'] = $row['acct_id'];
-
-                                $fullName = $row['firstname']." ".$row['lastname'];
-                                $currency = currency($row);
-                                ?>
-                                <tr>
-                                    <td><?= $sn++ ?></td>
-
-                                    <td><?=$currency.$row['amount'] ?></td>
-                                    <td><?= $row['bank_name'] ?></td>
-                                    <td><?= $row['acct_name'] ?></td>
-                                    <td><?= $row['acct_number'] ?></td>
-                                    <td><?= $row['acct_type'] ?></td>
-                                    <td><?= ucwords($row['trans_type']) ?></td>
-                                    <td><?= $dom_status ?></td>
-                                    <td class="text-center"><a href="./view-domtrans.php?id=<?php echo $row['refrence_id']; ?>" class="btn btn-primary">View</a> </td>
-                                </tr>
-                                <?php
-                            }
-                            ?>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-
-                                <th>Amount</th>
-                                <th>Bank Name</th>
-                                <th>Account Name</th>
-                                <th>Account Number</th>
-                                <th>Account Type</th>
-                                <th>Transfer Type</th>
-                                <th>Transfer Status</th>
-                                <th class="text-center dt-no-sorting">Action</th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            <?php
-            include_once("./layout/footer.php");
-            ?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

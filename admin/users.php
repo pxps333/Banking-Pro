@@ -1,94 +1,61 @@
-<?php
-include_once("./layout/header.php");
+<?php include_once("./layout/header.php"); ?>
 
-
-
-?>
-
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>All Users</h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">All Users</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Users</span></nav>
+  </div>
+  <a href="./reguser.php" class="adm-btn adm-btn-primary"><i class="ri-user-add-line"></i> New Account</a>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-group-line"></i> User Accounts</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Name</th>
+            <th>Account No</th>
+            <th>Currency</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Email</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM users ORDER BY id ASC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $fullName = ucwords($row['firstname'].' '.$row['lastname']);
+            $isActive = ($row['acct_status'] == '1' || strtolower($row['acct_status']) === 'active');
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td><span style="font-weight:600"><?= htmlspecialchars($fullName) ?></span></td>
+          <td><code style="font-size:.82rem;background:var(--adm-surface2);padding:2px 7px;border-radius:5px;border:1px solid var(--adm-border)"><?= htmlspecialchars($row['acct_no']) ?></code></td>
+          <td><?= htmlspecialchars($row['acct_currency']) ?></td>
+          <td><span class="adm-badge adm-badge-info"><?= htmlspecialchars($row['acct_type']) ?></span></td>
+          <td><span class="adm-badge <?= $isActive ? 'adm-badge-success' : 'adm-badge-neutral' ?>"><?= $isActive ? 'Active' : htmlspecialchars($row['acct_status']) ?></span></td>
+          <td style="font-size:.83rem;color:var(--adm-text2)"><?= htmlspecialchars($row['acct_email']) ?></td>
+          <td><a href="./view_users.php?id=<?= $row['id'] ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-                                <th>NAME</th>
-                                <th>ACCOUNT NO</th>
-                                <th>ACCOUNT CURRENCY</th>
-                                <th>ACCOUNT TYPE</th>
-                                <th>ACCOUNT STATUS</th>
-                                <th>ACCOUNT EMAIL</th>
-                                <!--<th>ACCOUNT COUNTRY</th>-->
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                                $sql="SELECT * FROM users order by id ASC";
-                                $stmt = $conn->prepare($sql);
-                                $stmt->execute();
-                                $sn=1;
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                    $fullName = $row['firstname']." ". $row['lastname'];
-                            ?>
-                            <tr>
-                                <td><?= $sn++ ?></td>
-                                <td><?= $fullName ?></td>
-                                <td><?= $row['acct_no'] ?></td>
-                                <td><?= $row['acct_currency'] ?></td>
-                                <td><?= $row['acct_type'] ?></td>
-                                <td><?= $row['acct_status'] ?></td>
-                                <td><?= $row['acct_email'] ?></td>
-                                <!--<td><?= $row['country'] ?></td>-->
-                                <td class="text-center"><a href="./view_users.php?id=<?php echo $row['id']; ?>" class="btn btn-primary">View</a> </td>
-                                
-                                
-                        <!--<td class="text-center"><form class="section about" method="POST">-->
-                        <!--                        <button class="btn btn-primary" name="status_delete">Delete</button></form>-->
-                        <!--                    </td>-->
-                                            
-                                
-                                
-                            </tr>
-                            <?php
-                                }
-                            ?>
-                            </tbody>
-                            <!--<tfoot>-->
-                            <!--<tr>-->
-                            <!--    <th>S/N</th>-->
-                            <!--    <th>NAME</th>-->
-                            <!--    <th>ACCOUNT NO</th>-->
-                            <!--    <th>ACCOUNT CURRENCY</th>-->
-                            <!--    <th>ACCOUNT TYPE</th>-->
-                            <!--    <th>ACCOUNT STATUS</th>-->
-                            <!--    <th>ACCOUNT EMAIL</th>-->
-                            <!--    <th>ACCOUNT COUNTRY</th>-->
-                            <!--    <th class="invisible"></th>-->
-                            <!--</tr>-->
-                            <!--</tfoot>-->
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-<?php
-include_once("./layout/footer.php");
-?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

@@ -1,94 +1,73 @@
-<?php
-include_once("./layout/header.php");
-?>
+<?php include_once("./layout/header.php"); ?>
 
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>All Credit / Debit </h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Credit / Debit Transactions</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Transactions</span></nav>
+  </div>
+  <a href="./funduser.php" class="adm-btn adm-btn-primary"><i class="ri-funds-line"></i> Fund User</a>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-exchange-funds-line"></i> All Credit / Debit Records</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Sender</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Edit</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM transactions LEFT JOIN users ON transactions.user_id = users.id ORDER BY transactions.trans_id DESC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $currency = currency($row);
+            $fullName = ucwords($row['firstname'].' '.$row['lastname']);
+            $isCredit = ($row['trans_type'] === '1');
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:600"><?= htmlspecialchars($fullName) ?></td>
+          <td style="font-weight:700"><?= htmlspecialchars($currency.$row['amount']) ?></td>
+          <td>
+            <?php if ($isCredit): ?>
+              <span class="adm-badge adm-badge-success"><i class="ri-arrow-down-line"></i> Credit</span>
+            <?php else: ?>
+              <span class="adm-badge adm-badge-danger"><i class="ri-arrow-up-line"></i> Debit</span>
+            <?php endif; ?>
+          </td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['sender_name']) ?></td>
+          <td style="font-size:.83rem;color:var(--adm-text2)"><?= htmlspecialchars($row['created_at']) ?></td>
+          <td style="font-size:.83rem;color:var(--adm-text2)"><?= htmlspecialchars($row['time_created']) ?></td>
+          <td><a href="./edit-trans.php?id=<?= htmlspecialchars($row['trans_id']) ?>" class="adm-btn adm-btn-sm adm-btn-outline"><i class="ri-edit-line"></i> Edit</a></td>
+          <td><a href="./view-trans.php?id=<?= htmlspecialchars($row['trans_id']) ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Name</th><th>Amount</th><th>Type</th><th>Sender</th><th>Date</th><th>Time</th><th>Edit</th><th>View</th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-                                <th>NAME</th>
-                                <th>AMOUNT</th>
-                                <th>TRANS TYPE</th>
-                                <th>SENDER NAME</th>
-                                <!--<th>DESCRIPTION</th>-->
-                                <th>DATE</th>
-                                <th>TIME</th>
-                                <th>Edit</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sql="SELECT * FROM transactions LEFT JOIN users ON transactions.user_id = users.id order by transactions.trans_id DESC";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-                            $sn=1;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                if($row['trans_type'] === '1'){
-                                    $trans_type = '<span class="text-success">Credit</span>';
-                                }else if($row['trans_type']=== '2'){
-                                    $trans_type = '<span class="text-danger">Debit</span>';
-                                }
-                                $currency = currency($row);
-//                                session_start();
-//                                $_SESSION['users_id'] = $row['user_id'];
-                                $fullName = $row['firstname']." ".$row['lastname'];
-                                ?>
-                                <tr>
-                                    <td><?= $sn++ ?></td>
-                                    <td><?= $fullName ?></td>
-                                    <td><?=$currency.$row['amount'] ?></td>
-                                    <td><?= $trans_type ?></td>
-                                    <td><?= $row['sender_name'] ?></td>
-                                    <!--<td><?= $row['description'] ?></td>-->
-                                    <td><?= $row['created_at'] ?></td>
-                                    <td><?= $row['time_created'] ?></td>
-                                    <!--<td class="text-center"><a href="./view-trans.php?id=<?php echo $row['refrence_id']; ?>" class="btn btn-primary">View</a> </td>-->
-                                     <td class="text-center"><a href="./edit-trans.php?id=<?php echo $row['trans_id']; ?>" target="_blank" class="btn btn-primary">Edit</a> </td>
-                                    <td class="text-center"><a href="./view-trans.php?id=<?php echo $row['trans_id']; ?>" target="_blank" class="btn btn-primary">View</a> </td>
-                                </tr>
-                                <?php
-                            }
-                            ?>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-                                <th>NAME</th>
-                                <th>AMOUNT</th>
-                                <th>TRANS TYPE</th>
-                                <th>SENDER NAME</th>
-                                <th>DESCRIPTION</th>
-                                <th>CREATED AT</th>
-                                <th>TIME CREATED</th>
-                                <th class="invisible"></th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            <?php
-            include_once("./layout/footer.php");
-            ?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

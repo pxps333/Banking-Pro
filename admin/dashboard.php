@@ -1,144 +1,185 @@
 <?php
 include_once("./layout/header.php");
 
-$sql = "SELECT * FROM users";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$row_count = $stmt->rowCount();
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-//$balances = $row['acct_balance']->rowCount();
+$sql = "SELECT COUNT(*) as total, SUM(acct_balance) as total_balance FROM users";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$users_stats = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_users = $users_stats['total'];
+$total_balance = number_format((float)$users_stats['total_balance'], 2);
+
+$sql = "SELECT SUM(amount) as total FROM wire_transfer";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$wire_total = number_format((float)$stmt->fetch(PDO::FETCH_NUM)[0], 2);
+
+$sql = "SELECT SUM(amount) as total FROM deposit";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$dep_total = number_format((float)$stmt->fetch(PDO::FETCH_NUM)[0], 2);
+
+$sql = "SELECT COUNT(*) as total FROM wire_transfer WHERE wire_status='0'";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$pending_wire = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$sql = "SELECT COUNT(*) as total FROM loan WHERE loan_status='0'";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$pending_loans = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$sql = "SELECT COUNT(*) as total FROM withdrawal WHERE status='0'";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$pending_withdrawals = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$sql = "SELECT firstname, lastname, acct_email, acct_type, acct_balance, acct_currency, acct_status FROM users ORDER BY id DESC LIMIT 5";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$recent_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sql = "SELECT t.amount, t.sender_name, t.trans_type, t.created_at, u.firstname, u.lastname, u.acct_currency FROM transactions t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.trans_id DESC LIMIT 5";
+$stmt = $conn->prepare($sql); $stmt->execute();
+$recent_trans = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-<div class="page-header">
-    <div class="page-title">
-        <h3>Admin Analytics</h3>
-    </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Admin Dashboard</h1>
+    <nav class="adm-breadcrumb"><span>Overview & Analytics</span></nav>
+  </div>
+  <a href="./reguser.php" class="adm-btn adm-btn-primary"><i class="ri-user-add-line"></i> New Account</a>
 </div>
 
-<div class="row layout-top-spacing">
+<!-- Stat Cards -->
+<div class="adm-stat-grid">
+  <div class="adm-stat">
+    <div class="adm-stat-icon blue"><i class="ri-group-line"></i></div>
+    <div class="adm-stat-label">Total Users</div>
+    <div class="adm-stat-value"><?= $total_users ?></div>
+    <div class="adm-stat-sub">Registered accounts</div>
+    <div class="adm-stat-accent blue"></div>
+  </div>
+  <div class="adm-stat">
+    <div class="adm-stat-icon green"><i class="ri-bank-card-line"></i></div>
+    <div class="adm-stat-label">Total Balance</div>
+    <div class="adm-stat-value" style="font-size:1.3rem">$<?= $total_balance ?></div>
+    <div class="adm-stat-sub">All user balances combined</div>
+    <div class="adm-stat-accent green"></div>
+  </div>
+  <div class="adm-stat">
+    <div class="adm-stat-icon cyan"><i class="ri-send-plane-line"></i></div>
+    <div class="adm-stat-label">Wire Transfers</div>
+    <div class="adm-stat-value" style="font-size:1.3rem">$<?= $wire_total ?></div>
+    <div class="adm-stat-sub">Total wire volume</div>
+    <div class="adm-stat-accent cyan"></div>
+  </div>
+  <div class="adm-stat">
+    <div class="adm-stat-icon orange"><i class="ri-arrow-down-circle-line"></i></div>
+    <div class="adm-stat-label">Total Deposits</div>
+    <div class="adm-stat-value" style="font-size:1.3rem">$<?= $dep_total ?></div>
+    <div class="adm-stat-sub">Total deposit volume</div>
+    <div class="adm-stat-accent orange"></div>
+  </div>
+  <div class="adm-stat">
+    <div class="adm-stat-icon red"><i class="ri-time-line"></i></div>
+    <div class="adm-stat-label">Pending Actions</div>
+    <div class="adm-stat-value"><?= $pending_wire + $pending_loans + $pending_withdrawals ?></div>
+    <div class="adm-stat-sub"><?= $pending_wire ?> wire · <?= $pending_loans ?> loans · <?= $pending_withdrawals ?> withdrawals</div>
+    <div class="adm-stat-accent red"></div>
+  </div>
+  <div class="adm-stat">
+    <div class="adm-stat-icon purple"><i class="ri-exchange-funds-line"></i></div>
+    <div class="adm-stat-label">Pending Loans</div>
+    <div class="adm-stat-value"><?= $pending_loans ?></div>
+    <div class="adm-stat-sub">Awaiting review</div>
+    <div class="adm-stat-accent purple"></div>
+  </div>
+</div>
 
-    <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-        <div class="widget widget-one">
-            <div class="widget-heading">
-                <h6 class="">Users Statistics</h6>
-            </div>
-            <div class="w-chart">
-                <div class="w-chart-section">
-                    <div class="w-detail">
-                        <p class="w-title">Total Users</p>
-                        <p class="w-stats"><?= $row_count ?></p>
-                    </div>
-                    <div class="w-chart-render-one">
-                        <div id="total-users"></div>
-                    </div>
-                </div>
+<!-- Quick links row -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
+  <a href="./users.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-group-line"></i> All Users</a>
+  <a href="./funduser.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-funds-line"></i> Fund User</a>
+  <a href="./wire-trans.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-send-plane-line"></i> Wire</a>
+  <a href="./loan-trans.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-bank-line"></i> Loans</a>
+  <a href="./withdraw-trans.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-wallet-line"></i> Withdrawals</a>
+  <a href="./settings.php" class="adm-btn adm-btn-outline" style="justify-content:center"><i class="ri-settings-3-line"></i> Settings</a>
+</div>
 
-                <div class="w-chart-section">
-                    <div class="w-detail">
-                        <p class="w-title">Total Balance</p>
-                        <?php
-                        $sql = "SELECT SUM(acct_balance) FROM users";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
+<!-- Two column: recent users + recent transactions -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
-                        $total = $stmt->fetch(PDO::FETCH_NUM);
-                        $sum = $total[0];
-                        ?>
-                        <p class="w-stats"><?="$".$sum ?></p>
-                    </div>
-                    <div class="w-chart-render-one">
-                        <div id="paid-visits"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="adm-card">
+    <div class="adm-card-header">
+      <h2 class="adm-card-title"><i class="ri-group-line"></i> Recent Users</h2>
+      <a href="./users.php" class="adm-btn adm-btn-sm adm-btn-outline">View All</a>
     </div>
-
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
-        <div class="widget widget-account-invoice-two">
-            <div class="widget-content">
-                <div class="account-box">
-                    <div class="info">
-                        <h5 class="">Total Wire Transfer</h5>
-                        <?php
-                        $sql = "SELECT SUM(amount) FROM wire_transfer";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-
-                        $total = $stmt->fetch(PDO::FETCH_NUM);
-                        $sum = $total[0];
-                        ?>
-                        <p class="inv-balance"><?="$". $sum?></p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+    <div class="adm-card-body" style="padding:0">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Balance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($recent_users as $u):
+            $curr_sym = $u['acct_currency'] === 'USD' ? '$' : ($u['acct_currency'] === 'Euro' ? '€' : ($u['acct_currency'] === 'GBP' ? '£' : '$'));
+          ?>
+          <tr>
+            <td>
+              <div style="font-weight:600;font-size:.84rem"><?= htmlspecialchars(ucwords($u['firstname'].' '.$u['lastname'])) ?></div>
+              <div style="font-size:.72rem;color:var(--adm-text3)"><?= htmlspecialchars($u['acct_email']) ?></div>
+            </td>
+            <td><span class="adm-badge adm-badge-info"><?= htmlspecialchars($u['acct_type']) ?></span></td>
+            <td style="font-weight:600"><?= $curr_sym.number_format((float)$u['acct_balance'],2) ?></td>
+            <td><span class="adm-badge <?= $u['acct_status'] == '1' ? 'adm-badge-success' : 'adm-badge-neutral' ?>"><?= $u['acct_status'] == '1' ? 'Active' : 'Inactive' ?></span></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
-        <div class="widget widget-card-four">
-            <div class="widget-content">
-                <div class="w-content">
-                    <div class="w-info">
-                        <?php
-                        $sql = "SELECT SUM(amount) FROM deposit";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->execute();
-
-                        $total = $stmt->fetch(PDO::FETCH_NUM);
-                        $sum = $total[0];
-                        ?>
-                        <h6 class="value"><?="$".$sum ?></h6>
-                        <p class="">Total Deposit</p>
-                    </div>
-                    <div class="">
-                        <div class="w-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar bg-gradient-secondary" role="progressbar" style="width: 57%" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-        </div>
+  <div class="adm-card">
+    <div class="adm-card-header">
+      <h2 class="adm-card-title"><i class="ri-exchange-funds-line"></i> Recent Transactions</h2>
+      <a href="./credit_debit_trans.php" class="adm-btn adm-btn-sm adm-btn-outline">View All</a>
     </div>
-
-    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-        <div class="widget widget-chart-three">
-            <div class="widget-heading">
-                <div class="">
-                    <h5 class="">Unique Visitors</h5>
-                </div>
-
-                <div class="dropdown  custom-dropdown">
-                    <a class="dropdown-toggle" href="#" role="button" id="uniqueVisitors" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                    </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="uniqueVisitors">
-                        <a class="dropdown-item" href="javascript:void(0);">View</a>
-                        <a class="dropdown-item" href="javascript:void(0);">Update</a>
-                        <a class="dropdown-item" href="javascript:void(0);">Download</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="widget-content">
-                <div id="uniqueVisits"></div>
-            </div>
-        </div>
+    <div class="adm-card-body" style="padding:0">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($recent_trans as $t):
+            $curr_sym = $t['acct_currency'] === 'USD' ? '$' : ($t['acct_currency'] === 'Euro' ? '€' : ($t['acct_currency'] === 'GBP' ? '£' : '$'));
+          ?>
+          <tr>
+            <td style="font-weight:600;font-size:.84rem"><?= htmlspecialchars(ucwords($t['firstname'].' '.$t['lastname'])) ?></td>
+            <td style="font-weight:700"><?= $curr_sym.number_format((float)$t['amount'],2) ?></td>
+            <td>
+              <?php if ($t['trans_type'] == '1'): ?>
+                <span class="adm-badge adm-badge-success">Credit</span>
+              <?php else: ?>
+                <span class="adm-badge adm-badge-danger">Debit</span>
+              <?php endif; ?>
+            </td>
+            <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($t['created_at']) ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
     </div>
-<!--  END CONTENT AREA  -->
+  </div>
 
+</div>
 
-<?php
-include_once("./layout/footer.php");
-?>
+</div>
+</div>
+
+<?php include_once("./layout/footer.php"); ?>

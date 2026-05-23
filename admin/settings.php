@@ -1,6 +1,9 @@
 <?php
+include_once("./layout/header.php");
+
 /* ── Handle AJAX save_settings ── */
 if (isset($_POST['save_settings']) && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    ob_clean();
     header('Content-Type: application/json');
     $fields = ['url_name','url_tel','url_email','about_us','livechat',
                'trans_limit_min','trans_limit_max','twillio_status',
@@ -23,6 +26,7 @@ if (isset($_POST['save_settings']) && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) 
 
 /* ── Handle AJAX logo upload ── */
 if (isset($_POST['upload_picture']) && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    ob_clean();
     header('Content-Type: application/json');
     if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
         echo json_encode(['ok'=>false,'msg'=>'No file uploaded or upload error.']); exit;
@@ -47,10 +51,6 @@ if (isset($_POST['upload_picture']) && isset($_SERVER['HTTP_X_REQUESTED_WITH']))
     exit;
 }
 ?>
-
-include_once("./layout/header.php");
-
-
 
 <!-- ── Custom styles scoped to this page ── -->
 <style>
@@ -135,7 +135,6 @@ include_once("./layout/header.php");
 }
 .sp-toggle input:checked + .sp-toggle-slider { background:var(--sp-accent); border-color:var(--sp-accent); }
 .sp-toggle input:checked + .sp-toggle-slider::before { transform:translateX(18px); }
-.sp-toggle-value { display:none; }
 
 /* ── Logo upload zone ── */
 #sp-logo-zone {
@@ -188,14 +187,12 @@ include_once("./layout/header.php");
 .sp-preview-dot { width:8px; height:8px; border-radius:50%; background:var(--sp-green); box-shadow:0 0 6px var(--sp-green); animation:sp-pulse 2s infinite; }
 @keyframes sp-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-/* Simulated browser chrome */
 .sp-browser { background:#0a0e1a; }
 .sp-browser-bar { background:#1a1f2e; padding:8px 12px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(255,255,255,.05); }
 .sp-browser-dots { display:flex; gap:5px; }
 .sp-browser-dots span { width:9px; height:9px; border-radius:50%; }
 .sp-browser-url { flex:1; background:rgba(255,255,255,.05); border-radius:6px; padding:4px 10px; font-size:.65rem; color:rgba(255,255,255,.3); font-family:monospace; margin-left:4px; }
 
-/* Simulated mini navbar */
 .sp-mini-nav {
   height:46px; display:flex; align-items:center; justify-content:space-between;
   padding:0 16px; background:rgba(6,9,18,.9); backdrop-filter:blur(10px);
@@ -208,7 +205,6 @@ include_once("./layout/header.php");
 .sp-mini-links span { font-size:.55rem; color:rgba(255,255,255,.35); font-weight:500; }
 .sp-mini-btn { font-size:.6rem; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:6px; padding:4px 10px; font-weight:700; cursor:default; }
 
-/* Simulated hero snippet */
 .sp-mini-hero { padding:20px 16px; }
 .sp-mini-hero-badge { display:flex; align-items:center; gap:5px; font-size:.55rem; color:rgba(255,255,255,.4); margin-bottom:8px; }
 .sp-mini-hero-badge span { width:5px; height:5px; border-radius:50%; background:var(--sp-green); }
@@ -219,20 +215,16 @@ include_once("./layout/header.php");
 .sp-mini-hero-btns a:first-child { background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; }
 .sp-mini-hero-btns a:last-child { background:rgba(255,255,255,.06); color:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.1); }
 
-/* Contact info strip */
 .sp-mini-contact { background:rgba(255,255,255,.03); border-top:1px solid rgba(255,255,255,.05); padding:10px 16px; display:flex; gap:16px; }
 .sp-mini-contact-item { display:flex; align-items:center; gap:5px; font-size:.58rem; color:rgba(255,255,255,.4); }
 .sp-mini-contact-item i { font-size:.7rem; color:var(--sp-accent); }
 .sp-mini-contact-item strong { color:rgba(255,255,255,.65); }
 
-/* ── Responsive ── */
 @media (max-width:1100px) { .sp-layout { grid-template-columns:160px 1fr; } .sp-preview { display:none; } }
 @media (max-width:768px)  { .sp-layout { grid-template-columns:1fr; } }
 </style>
 
-<!-- ── Remix Icons ── -->
-<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
-
+<div id="content" class="main-content">
 <div id="sp-wrap">
 
   <!-- Page header -->
@@ -250,7 +242,7 @@ include_once("./layout/header.php");
   <!-- 3-column layout -->
   <div class="sp-layout">
 
-    <!-- ── Tab sidebar ── -->
+    <!-- Tab sidebar -->
     <nav class="sp-tabs">
       <button class="sp-tab-btn active" onclick="spTab('identity',this)"><i class="ri-bank-line"></i> Identity</button>
       <button class="sp-tab-btn" onclick="spTab('contact',this)"><i class="ri-phone-line"></i> Contact</button>
@@ -258,15 +250,13 @@ include_once("./layout/header.php");
       <button class="sp-tab-btn" onclick="spTab('integrations',this)"><i class="ri-code-box-line"></i> Integrations</button>
     </nav>
 
-    <!-- ── Settings panels ── -->
+    <!-- Settings panels -->
     <div class="sp-panels">
 
       <!-- IDENTITY -->
       <div class="sp-panel active" id="sp-panel-identity">
-
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-image-line"></i> Bank Logo</div>
-
           <div id="sp-logo-zone">
             <input type="file" id="sp-logo-file" accept="image/*" />
             <img id="sp-logo-preview" src="/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="Logo preview" />
@@ -278,10 +268,8 @@ include_once("./layout/header.php");
             <div id="sp-logo-filename"></div>
           </div>
         </div>
-
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-bank-line"></i> Bank Identity</div>
-
           <div class="sp-field">
             <label class="sp-label" for="sp-url-name">Bank Name <span class="req">*</span></label>
             <input class="sp-input" id="sp-url-name" name="url_name" type="text"
@@ -290,21 +278,19 @@ include_once("./layout/header.php");
                    oninput="spPreviewUpdate()" />
             <div class="sp-hint">This name appears on the navbar, emails, footer, and all pages.</div>
           </div>
-
           <div class="sp-field">
             <label class="sp-label" for="sp-about">About the Bank</label>
             <textarea class="sp-textarea" id="sp-about" name="about_us"
-                      placeholder="A short description about your bank..."><?= htmlspecialchars($page['about_us'] ?? '') ?></textarea>
+                      placeholder="A short description about your bank..."
+                      oninput="spPreviewUpdate()"><?= htmlspecialchars($page['about_us'] ?? '') ?></textarea>
           </div>
         </div>
-
       </div>
 
       <!-- CONTACT -->
       <div class="sp-panel" id="sp-panel-contact">
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-contacts-line"></i> Contact Information</div>
-
           <div class="sp-field">
             <label class="sp-label" for="sp-url-tel">Phone Number <span class="req">*</span></label>
             <input class="sp-input" id="sp-url-tel" name="url_tel" type="tel"
@@ -313,7 +299,6 @@ include_once("./layout/header.php");
                    oninput="spPreviewUpdate()" />
             <div class="sp-hint">Include country code without spaces or dashes.</div>
           </div>
-
           <div class="sp-field">
             <label class="sp-label" for="sp-url-email">Support Email <span class="req">*</span></label>
             <input class="sp-input" id="sp-url-email" name="url_email" type="email"
@@ -329,7 +314,6 @@ include_once("./layout/header.php");
       <div class="sp-panel" id="sp-panel-operations">
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-money-dollar-circle-line"></i> Deposit Limits</div>
-
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="sp-field" style="margin:0">
               <label class="sp-label" for="sp-limit-min">Minimum Deposit ($)</label>
@@ -343,10 +327,8 @@ include_once("./layout/header.php");
             </div>
           </div>
         </div>
-
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-toggle-line"></i> Feature Toggles</div>
-
           <div class="sp-toggle-row">
             <div class="sp-toggle-info">
               <strong>Wire Transfers</strong>
@@ -358,7 +340,6 @@ include_once("./layout/header.php");
             </label>
             <input type="hidden" name="transfer" id="sp-val-transfer" value="<?= ($page['transfer'] ?? 0) ?>" />
           </div>
-
           <div class="sp-toggle-row">
             <div class="sp-toggle-info">
               <strong>Bank Deposit</strong>
@@ -370,7 +351,6 @@ include_once("./layout/header.php");
             </label>
             <input type="hidden" name="bank_deposit" id="sp-val-deposit" value="<?= ($page['bank_deposit'] ?? 0) ?>" />
           </div>
-
           <div class="sp-toggle-row">
             <div class="sp-toggle-info">
               <strong>Billing Codes</strong>
@@ -382,7 +362,6 @@ include_once("./layout/header.php");
             </label>
             <input type="hidden" name="billing_code" id="sp-val-billing" value="<?= ($page['billing_code'] ?? 0) ?>" />
           </div>
-
           <div class="sp-toggle-row">
             <div class="sp-toggle-info">
               <strong>Twilio SMS Alerts</strong>
@@ -401,7 +380,6 @@ include_once("./layout/header.php");
       <div class="sp-panel" id="sp-panel-integrations">
         <div class="sp-card">
           <div class="sp-card-title"><i class="ri-chat-3-line"></i> Live Chat</div>
-
           <div class="sp-field">
             <label class="sp-label" for="sp-livechat">Live Chat Embed Script</label>
             <textarea class="sp-textarea" id="sp-livechat" name="livechat"
@@ -415,15 +393,13 @@ include_once("./layout/header.php");
     </div>
     <!-- end panels -->
 
-    <!-- ── Live Preview ── -->
+    <!-- Live Preview -->
     <aside class="sp-preview">
       <div class="sp-preview-card">
         <div class="sp-preview-label">
           <span>Live Preview</span>
           <div class="sp-preview-dot"></div>
         </div>
-
-        <!-- Browser chrome -->
         <div class="sp-browser">
           <div class="sp-browser-bar">
             <div class="sp-browser-dots">
@@ -431,10 +407,8 @@ include_once("./layout/header.php");
               <span style="background:#fbbf24"></span>
               <span style="background:#34d399"></span>
             </div>
-            <div class="sp-browser-url">yourbank.com</div>
+            <div class="sp-browser-url" id="sp-prev-url"><?= htmlspecialchars($page['url_name'] ?? 'yourbank') ?>.com</div>
           </div>
-
-          <!-- Mini navbar preview -->
           <div class="sp-mini-nav">
             <div class="sp-mini-logo">
               <img id="sp-prev-logo" src="/assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="logo" />
@@ -445,8 +419,6 @@ include_once("./layout/header.php");
             </div>
             <button class="sp-mini-btn">Open Account</button>
           </div>
-
-          <!-- Mini hero preview -->
           <div class="sp-mini-hero">
             <div class="sp-mini-hero-badge"><span></span> Trusted Banking Infrastructure</div>
             <h3>Banking Designed<br>for the <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Modern World</span></h3>
@@ -456,8 +428,6 @@ include_once("./layout/header.php");
               <a href="#">Sign In</a>
             </div>
           </div>
-
-          <!-- Contact strip -->
           <div class="sp-mini-contact">
             <div class="sp-mini-contact-item">
               <i class="ri-phone-line"></i>
@@ -470,216 +440,180 @@ include_once("./layout/header.php");
           </div>
         </div>
       </div>
-
-      <!-- Quick stats -->
-      <div class="sp-card" style="margin-top:16px">
-        <div class="sp-card-title"><i class="ri-information-line"></i> Current Settings</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <?php
-          $statItems = [
-            ['Bank Name', $page['url_name'] ?? '-'],
-            ['Phone', '+'.$page['url_tel'] ?? '-'],
-            ['Email', $page['url_email'] ?? '-'],
-            ['Min Deposit', '$'.number_format($page['trans_limit_min'] ?? 0)],
-            ['Max Deposit', '$'.number_format($page['trans_limit_max'] ?? 0)],
-          ];
-          foreach ($statItems as $s): ?>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:6px 0;border-bottom:1px solid var(--sp-border)">
-            <span style="color:var(--sp-muted)"><?= $s[0] ?></span>
-            <span style="font-weight:600;color:var(--sp-text);max-width:160px;text-align:right;word-break:break-all"><?= htmlspecialchars($s[1]) ?></span>
-          </div>
-          <?php endforeach; ?>
-        </div>
-      </div>
     </aside>
 
   </div>
 </div>
+</div>
 
-<!-- Toast notification -->
+<!-- Toast -->
 <div id="sp-toast">
-  <div class="sp-toast-icon success" id="sp-toast-icon"><i class="ri-checkbox-circle-line"></i></div>
+  <div class="sp-toast-icon" id="sp-toast-icon"></div>
   <div class="sp-toast-body">
-    <strong id="sp-toast-title">Saved!</strong>
-    <span id="sp-toast-msg">Settings updated successfully.</span>
+    <strong id="sp-toast-title"></strong>
+    <span id="sp-toast-msg"></span>
   </div>
 </div>
 
 <script>
-(function () {
-  "use strict";
+/* ── Tab switching ── */
+function spTab(name, btn) {
+  document.querySelectorAll('.sp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sp-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sp-panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
 
-  /* ─── Tab switching ─── */
-  window.spTab = function (id, btn) {
-    document.querySelectorAll('.sp-panel').forEach(function(p){ p.classList.remove('active'); });
-    document.querySelectorAll('.sp-tab-btn').forEach(function(b){ b.classList.remove('active'); });
-    document.getElementById('sp-panel-' + id).classList.add('active');
-    btn.classList.add('active');
-  };
+/* ── Preview update ── */
+function spPreviewUpdate() {
+  var name = document.getElementById('sp-url-name')?.value || 'Bank Name';
+  var about = document.getElementById('sp-about')?.value || '';
+  var tel = document.getElementById('sp-url-tel')?.value || '';
+  var email = document.getElementById('sp-url-email')?.value || '';
+  var nameEl = document.getElementById('sp-prev-name');
+  var aboutEl = document.getElementById('sp-prev-about');
+  var telEl = document.getElementById('sp-prev-tel');
+  var emailEl = document.getElementById('sp-prev-email');
+  var urlEl = document.getElementById('sp-prev-url');
+  if (nameEl) nameEl.textContent = name;
+  if (aboutEl) aboutEl.textContent = about.substring(0, 90);
+  if (telEl) telEl.textContent = '+' + tel;
+  if (emailEl) emailEl.textContent = email;
+  if (urlEl) urlEl.textContent = name.toLowerCase().replace(/\s+/g, '') + '.com';
+}
 
-  /* ─── Live preview update ─── */
-  window.spPreviewUpdate = function () {
-    var name  = document.getElementById('sp-url-name').value || 'Bank Name';
-    var tel   = document.getElementById('sp-url-tel').value || '';
-    var email = document.getElementById('sp-url-email').value || '';
-    var about = document.getElementById('sp-about').value || '';
-    document.getElementById('sp-prev-name').textContent  = name;
-    document.getElementById('sp-prev-tel').textContent   = tel ? '+' + tel : '';
-    document.getElementById('sp-prev-email').textContent = email;
-    document.getElementById('sp-prev-about').textContent = about.substring(0,90) + (about.length > 90 ? '…' : '');
-  };
-
-  /* ─── Toggle → hidden input sync ─── */
-  var toggleMap = {
-    'sp-toggle-transfer': 'sp-val-transfer',
-    'sp-toggle-deposit':  'sp-val-deposit',
-    'sp-toggle-billing':  'sp-val-billing',
-    'sp-toggle-twilio':   'sp-val-twilio'
-  };
-  Object.keys(toggleMap).forEach(function (tId) {
-    document.getElementById(tId).addEventListener('change', function () {
-      document.getElementById(toggleMap[tId]).value = this.checked ? '1' : '0';
-    });
+/* ── Toggle sync ── */
+function syncToggles() {
+  var pairs = [
+    ['sp-toggle-transfer','sp-val-transfer'],
+    ['sp-toggle-deposit','sp-val-deposit'],
+    ['sp-toggle-billing','sp-val-billing'],
+    ['sp-toggle-twilio','sp-val-twilio']
+  ];
+  pairs.forEach(function(p) {
+    var cb = document.getElementById(p[0]);
+    var hid = document.getElementById(p[1]);
+    if (cb && hid) {
+      cb.addEventListener('change', function() { hid.value = this.checked ? '1' : '0'; });
+    }
   });
+}
 
-  /* ─── Logo drag-and-drop ─── */
-  var zone     = document.getElementById('sp-logo-zone');
-  var fileIn   = document.getElementById('sp-logo-file');
-  var preview  = document.getElementById('sp-logo-preview');
+/* ── Toast ── */
+function spToast(type, title, msg) {
+  var t = document.getElementById('sp-toast');
+  var ti = document.getElementById('sp-toast-icon');
+  document.getElementById('sp-toast-title').textContent = title;
+  document.getElementById('sp-toast-msg').textContent = msg;
+  ti.className = 'sp-toast-icon ' + type;
+  ti.innerHTML = type === 'success' ? '<i class="ri-check-line"></i>' : '<i class="ri-close-circle-line"></i>';
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 4000);
+}
+
+/* ── Collect all field values ── */
+function spCollect() {
+  var data = {};
+  var fields = ['url_name','url_tel','url_email','about_us','livechat',
+                'trans_limit_min','trans_limit_max','twillio_status',
+                'transfer','billing_code','bank_deposit'];
+  var nameMap = {
+    'url_name':       'sp-url-name',
+    'url_tel':        'sp-url-tel',
+    'url_email':      'sp-url-email',
+    'about_us':       'sp-about',
+    'livechat':       'sp-livechat',
+    'trans_limit_min':'sp-limit-min',
+    'trans_limit_max':'sp-limit-max',
+    'twillio_status': 'sp-val-twilio',
+    'transfer':       'sp-val-transfer',
+    'billing_code':   'sp-val-billing',
+    'bank_deposit':   'sp-val-deposit'
+  };
+  fields.forEach(function(f) {
+    var el = document.getElementById(nameMap[f]);
+    if (el) data[f] = el.value;
+  });
+  return data;
+}
+
+/* ── Save ── */
+function spSave() {
+  var btn = document.getElementById('sp-global-save');
+  var spinner = document.getElementById('sp-spinner');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  var data = spCollect();
+  data.save_settings = '1';
+  var fd = new FormData();
+  Object.keys(data).forEach(function(k) { fd.append(k, data[k]); });
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    body: fd
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(json) {
+    spToast(json.ok ? 'success' : 'error', json.ok ? 'Saved!' : 'Error', json.msg);
+  })
+  .catch(function() {
+    spToast('error', 'Network Error', 'Could not reach the server.');
+  })
+  .finally(function() {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  });
+}
+
+/* ── Logo upload ── */
+function initLogoUpload() {
+  var zone = document.getElementById('sp-logo-zone');
+  var inp = document.getElementById('sp-logo-file');
+  var preview = document.getElementById('sp-logo-preview');
   var progress = document.getElementById('sp-logo-progress');
-  var progBar  = document.getElementById('sp-logo-progress-bar');
-  var fnLabel  = document.getElementById('sp-logo-filename');
-
-  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
-  zone.addEventListener('drop', function(e){
-    e.preventDefault(); zone.classList.remove('drag-over');
-    if (e.dataTransfer.files.length) uploadLogo(e.dataTransfer.files[0]);
-  });
-  fileIn.addEventListener('change', function(){
-    if (this.files.length) uploadLogo(this.files[0]);
-  });
-
+  var bar = document.getElementById('sp-logo-progress-bar');
+  var fname = document.getElementById('sp-logo-filename');
+  if (!zone || !inp) return;
+  zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+  zone.addEventListener('drop', function(e) { e.preventDefault(); zone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) uploadLogo(e.dataTransfer.files[0]); });
+  inp.addEventListener('change', function() { if (this.files[0]) uploadLogo(this.files[0]); });
   function uploadLogo(file) {
-    if (!file.type.match(/image.*/)) { spToast('error','Invalid File','Please upload an image file (JPG, PNG, SVG, WebP).'); return; }
-    if (file.size > 2 * 1024 * 1024)  { spToast('error','File Too Large','Maximum file size is 2 MB.'); return; }
-
-    /* Instant local preview */
     var reader = new FileReader();
-    reader.onload = function(e) {
-      preview.src = e.target.result;
-      document.getElementById('sp-prev-logo').src = e.target.result;
-    };
+    reader.onload = function(e) { preview.src = e.target.result; };
     reader.readAsDataURL(file);
-
-    /* Upload via AJAX */
     var fd = new FormData();
-    fd.append('upload_picture', '1');
     fd.append('image', file);
-
+    fd.append('upload_picture', '1');
     progress.style.display = 'block';
-    progBar.style.width = '0%';
-
+    bar.style.width = '0%';
     var xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = function(e) {
-      if (e.lengthComputable) progBar.style.width = Math.round(e.loaded/e.total*100)+'%';
-    };
+    xhr.open('POST', window.location.href);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.upload.onprogress = function(e) { if (e.lengthComputable) bar.style.width = (e.loaded/e.total*100) + '%'; };
     xhr.onload = function() {
       progress.style.display = 'none';
       try {
         var res = JSON.parse(xhr.responseText);
         if (res.ok) {
-          fnLabel.textContent = '✓ ' + file.name + ' uploaded';
-          fnLabel.style.display = 'block';
-          spToast('success','Logo Updated',res.msg);
+          fname.textContent = res.filename;
+          fname.style.display = 'block';
+          document.getElementById('sp-prev-logo').src = res.url;
+          spToast('success', 'Logo Updated', res.msg);
         } else {
-          spToast('error','Upload Failed', res.msg);
+          spToast('error', 'Upload Failed', res.msg);
         }
-      } catch(err) { spToast('error','Upload Error','Unexpected server response.'); }
+      } catch(e) { spToast('error', 'Upload Failed', 'Server response error.'); }
     };
-    xhr.onerror = function() { progress.style.display='none'; spToast('error','Upload Failed','Network error.'); };
-    xhr.open('POST', './settings.php');
-    xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+    xhr.onerror = function() { progress.style.display = 'none'; spToast('error', 'Network Error', 'Upload failed.'); };
     xhr.send(fd);
   }
+}
 
-  /* ─── Save all settings via AJAX ─── */
-  window.spSave = function () {
-    var btn     = document.getElementById('sp-global-save');
-    var spinner = document.getElementById('sp-spinner');
-    btn.disabled = true;
-    spinner.style.display = 'block';
-
-    var data = new FormData();
-    data.append('save_settings','1');
-    var names = ['url_name','url_tel','url_email','about_us','livechat',
-                 'trans_limit_min','trans_limit_max',
-                 'transfer','billing_code','bank_deposit','twillio_status'];
-
-    var fieldMap = {
-      url_name:       'sp-url-name',
-      url_tel:        'sp-url-tel',
-      url_email:      'sp-url-email',
-      about_us:       'sp-about',
-      livechat:       'sp-livechat',
-      trans_limit_min:'sp-limit-min',
-      trans_limit_max:'sp-limit-max',
-      transfer:       'sp-val-transfer',
-      billing_code:   'sp-val-billing',
-      bank_deposit:   'sp-val-deposit',
-      twillio_status: 'sp-val-twilio'
-    };
-
-    names.forEach(function(n){
-      var el = document.getElementById(fieldMap[n]);
-      data.append(n, el ? el.value : '');
-    });
-
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      btn.disabled = false;
-      spinner.style.display = 'none';
-      try {
-        var res = JSON.parse(xhr.responseText);
-        if (res.ok) {
-          spToast('success','Saved!', res.msg);
-          spPreviewUpdate();
-        } else {
-          spToast('error','Error', res.msg);
-        }
-      } catch(e) { spToast('error','Error','Unexpected server response.'); }
-    };
-    xhr.onerror = function(){ btn.disabled=false; spinner.style.display='none'; spToast('error','Network Error','Could not reach server.'); };
-    xhr.open('POST','./settings.php');
-    xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
-    xhr.send(data);
-  };
-
-  /* ─── Toast helper ─── */
-  var toastTimer = null;
-  function spToast(type, title, msg) {
-    var toast   = document.getElementById('sp-toast');
-    var icon    = document.getElementById('sp-toast-icon');
-    var ttitle  = document.getElementById('sp-toast-title');
-    var tmsg    = document.getElementById('sp-toast-msg');
-    var icons   = { success: 'ri-checkbox-circle-line', error: 'ri-close-circle-line' };
-
-    icon.className = 'sp-toast-icon ' + type;
-    icon.innerHTML = '<i class="' + (icons[type]||icons.success) + '"></i>';
-    ttitle.textContent = title;
-    tmsg.textContent   = msg || '';
-
-    toast.classList.add('show');
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 4000);
-  }
-
-  /* ─── Wire about textarea to preview update too ─── */
-  document.getElementById('sp-about').addEventListener('input', spPreviewUpdate);
-  document.getElementById('sp-url-tel').addEventListener('input', spPreviewUpdate);
-  document.getElementById('sp-url-email').addEventListener('input', spPreviewUpdate);
-
-})();
+document.addEventListener('DOMContentLoaded', function() {
+  syncToggles();
+  initLogoUpload();
+});
 </script>
 
 <?php include_once("./layout/footer.php"); ?>

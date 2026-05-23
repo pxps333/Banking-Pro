@@ -1,95 +1,73 @@
-<?php
-include_once("./layout/header.php");
-?>
+<?php include_once("./layout/header.php"); ?>
 
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>Wire Transaction</h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Wire Transactions</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Wire Transfers</span></nav>
+  </div>
+  <a href="./transfer.php" class="adm-btn adm-btn-primary"><i class="ri-send-plane-line"></i> New Wire Transfer</a>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-send-plane-line"></i> All Wire Transfer Records</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Sender</th>
+            <th>Amount</th>
+            <th>Bank Name</th>
+            <th>Account Name</th>
+            <th>Account No</th>
+            <th>Country</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM wire_transfer LEFT JOIN users ON wire_transfer.acct_id = users.id ORDER BY wire_transfer.wire_id DESC";
+          $stmt = $conn->prepare($sql); $stmt->execute();
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $currency = currency($row);
+            $fullName = ucwords($row['firstname'].' '.$row['lastname']);
+            $ws = $row['wire_status'];
+            if ($ws == '0') { $badge = '<span class="adm-badge adm-badge-warning">Processing</span>'; }
+            elseif ($ws == '1') { $badge = '<span class="adm-badge adm-badge-success">Approved</span>'; }
+            elseif ($ws == '2') { $badge = '<span class="adm-badge adm-badge-info">On Hold</span>'; }
+            else { $badge = '<span class="adm-badge adm-badge-danger">Cancelled</span>'; }
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:600"><?= htmlspecialchars($fullName) ?></td>
+          <td style="font-weight:700"><?= htmlspecialchars($currency.$row['amount']) ?></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['bank_name']) ?></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['acct_name']) ?></td>
+          <td><code style="font-size:.78rem;background:var(--adm-surface2);padding:2px 7px;border-radius:5px;border:1px solid var(--adm-border)"><?= htmlspecialchars($row['acct_number']) ?></code></td>
+          <td style="font-size:.83rem"><?= htmlspecialchars($row['acct_country']) ?></td>
+          <td><?= $badge ?></td>
+          <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($row['created_at']) ?></td>
+          <td><a href="./viewwire-trans.php?id=<?= htmlspecialchars($row['refrence_id']) ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Sender</th><th>Amount</th><th>Bank</th><th>Account Name</th><th>Account No</th><th>Country</th><th>Status</th><th>Date</th><th></th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-                                <th>Sender Name</th>
-                                <th>Amount</th>
-                                <th>Bank Name</th>
-                                <th>Account Name</th>
-                                <th>Account Number</th>
-                                <th>Country</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sql="SELECT * FROM wire_transfer LEFT JOIN users ON wire_transfer.acct_id = users.id order by wire_transfer.wire_id DESC ";
-                            $stmt = $conn->prepare($sql);
-                            $stmt->execute();
-                            $sn=1;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                $wire_status = wireStatus($row);
-                                $currency = currency($row);
-                                if($row['trans_type'] === '1'){
-                                    $trans_type = '<span class="text-success">Credit</span>';
-                                }else if($row['trans_type']=== '2'){
-                                    $trans_type = '<span class="text-danger">Debit</span>';
-                                }
-                                $_SESSION['wire_id'] = $row['id'];
-
-                                $fullName = $row['firstname']." ".$row['lastname'];
-                                ?>
-                                <tr>
-                                    <td><?= $sn++ ?></td>
-                                    <td><?= $fullName ?></td>
-                                    <td><?=$currency.$row['amount'] ?></td>
-                                    <td><?= $row['bank_name'] ?></td>
-                                    <td><?= $row['acct_name'] ?></td>
-                                    <td><?= $row['acct_number'] ?></td>
-                                    <td><?= $row['acct_country'] ?></td>
-                                    <td><?= $wire_status ?></td>
-                                    <td><?= $row['created_at'] ?></td>
-                                    <td class="text-center"><a href="./viewwire-trans.php?id=<?php echo $row['refrence_id']; ?>" class="btn btn-primary">View</a> </td>
-                                </tr>
-                                <?php
-                            }
-                            ?>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-                                <th>Account Name</th>
-                                <th>Amount</th>
-                                <th>Bank Name</th>
-                                <th>Account Name</th>
-                                <th>Account Number</th>
-                                <th>Country</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th class="invisible"></th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-<?php
-include_once("./layout/footer.php");
-?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

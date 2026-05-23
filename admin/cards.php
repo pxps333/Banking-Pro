@@ -1,86 +1,69 @@
-<?php
-include_once("./layout/header.php");
-?>
+<?php include_once("./layout/header.php"); ?>
 
-
-<!--  BEGIN CONTENT AREA  -->
 <div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<div class="layout-px-spacing">
 
-        <div class="page-header">
-            <div class="page-title">
-                <h3>Requested Cards</h3>
-            </div>
-        </div>
+<div class="adm-page-header">
+  <div>
+    <h1 class="adm-page-title">Card Requests</h1>
+    <nav class="adm-breadcrumb"><a href="./dashboard.php">Dashboard</a> <span>/</span> <span>Cards</span></nav>
+  </div>
+</div>
 
-        <div class="row layout-top-spacing" id="cancel-row">
+<div class="adm-card">
+  <div class="adm-card-header">
+    <h2 class="adm-card-title"><i class="ri-bank-card-line"></i> All Issued Cards</h2>
+  </div>
+  <div class="adm-card-body">
+    <div class="adm-table-wrap">
+      <table id="default-ordering" class="table table-hover" style="width:100%">
+        <thead>
+          <tr>
+            <th>S/N</th>
+            <th>Card Name</th>
+            <th>Card Number</th>
+            <th>Expiry</th>
+            <th>CVC</th>
+            <th>Type</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+          $sql = "SELECT * FROM card ORDER BY id DESC";
+          $stmt = $conn->query($sql);
+          $sn = 1;
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+            $card_type = getCardType($row);
+            $cs = (int)$row['card_status'];
+            if ($cs == 1) { $badge = '<span class="adm-badge adm-badge-success">Active</span>'; }
+            elseif ($cs == 2) { $badge = '<span class="adm-badge adm-badge-warning">Pending</span>'; }
+            elseif ($cs == 3) { $badge = '<span class="adm-badge adm-badge-danger">Deactivated</span>'; }
+            else { $badge = '<span class="adm-badge adm-badge-neutral">Unknown</span>'; }
+        ?>
+        <tr>
+          <td><?= $sn++ ?></td>
+          <td style="font-weight:600"><?= htmlspecialchars($row['card_name']) ?></td>
+          <td><code style="font-size:.78rem;background:var(--adm-surface2);padding:2px 7px;border-radius:5px;border:1px solid var(--adm-border)"><?= htmlspecialchars($row['card_number']) ?></code></td>
+          <td><?= htmlspecialchars($row['card_expiration']) ?></td>
+          <td><?= htmlspecialchars($row['card_security']) ?></td>
+          <td><span class="adm-badge adm-badge-info"><?= htmlspecialchars($card_type) ?></span></td>
+          <td style="font-size:.78rem;color:var(--adm-text3)"><?= htmlspecialchars($row['createdAt']) ?></td>
+          <td><?= $badge ?></td>
+          <td><a href="./viewcard.php?id=<?= htmlspecialchars($row['seria_key']) ?>" class="adm-btn adm-btn-sm adm-btn-primary"><i class="ri-eye-line"></i> View</a></td>
+        </tr>
+        <?php endwhile; ?>
+        </tbody>
+        <tfoot>
+          <tr><th>S/N</th><th>Card Name</th><th>Card Number</th><th>Expiry</th><th>CVC</th><th>Type</th><th>Created</th><th>Status</th><th></th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
 
-            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                <div class="widget-content widget-content-area br-6">
-                    <div class="table-responsive mb-4 mt-4">
-                        <table id="default-ordering" class="table table-hover" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>S/N</th>
-                                <th>Card Name</th>
-                                <th>Card No</th>
-                                <th>Expiration</th>
-                                <th>CVC</th>
-                                <th>Card Type</th>
-                                <th>Created At</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $sql="SELECT * FROM card order by id DESC";
-                            $stmt = $conn->query($sql);
-                            $sn=1;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                $currency = currency($row);
-                                $cardStatus = getCardStatus($row);
-                                $card_type = getCardType($row);
-
-
-                                ?>
-                                <tr>
-                                    <td><?= $sn++ ?></td>
-                                    <td><?= $row['card_name'] ?></td>
-                                    <td><?=$row['card_number'] ?></td>
-                                    <td><?= $row['card_expiration'] ?></td>
-                                    <td><?= $row['card_security'] ?></td>
-                                    <td><?= $card_type ?></td>
-                                    <td><?= $row['createdAt'] ?></td>
-                                    <td><?= $cardStatus ?></td>
-                                    <td class="text-center"><a href="./viewcard.php?id=<?php echo $row['seria_key']; ?>" class="btn btn-primary">View</a> </td>
-                                </tr>
-                                <?php
-                            }
-                            ?>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>S/N</th>
-                                <th>Card Name</th>
-                                <th>Card No</th>
-                                <th>Expiration</th>
-                                <th>CVC</th>
-                                <th>Card Type</th>
-                                <th>Created At</th>
-                                <th>Status</th>
-                                <th class="invisible"></th>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            <?php
-            include_once("./layout/footer.php");
-            ?>
+</div>
+</div>
+<?php include_once("./layout/footer.php"); ?>

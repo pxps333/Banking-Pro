@@ -15,8 +15,7 @@ if(@$_SESSION['admin']){
                 <div class="form-content">
 
                     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:22px;">
-                        <img src="/assets/images/logo/logo.png" alt="Admin" style="height:60px;width:auto;object-fit:contain;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(59,130,246,0.25));">
-                        <span style="font-size:1.05rem;font-weight:700;color:#3b82f6;letter-spacing:-0.01em;">Admin Panel</span>
+                       <span style="font-size:1.05rem;font-weight:700;color:#3b82f6;letter-spacing:-0.01em;">Admin Panel</span>
                     </div>
 
                     <h1 class="">Sign In</h1>

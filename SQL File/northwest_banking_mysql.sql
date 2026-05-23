@@ -288,6 +288,11 @@ CREATE TABLE `v_bank` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- !! Replace the values below with your real bank details before importing !!
+-- You can also add / edit these after import from Admin → Settings → Bank & Crypto Details
+INSERT INTO `v_bank` (`bank_name`, `routine_no`, `acct_no`, `swift_code`) VALUES
+('YOUR BANK NAME',  'YOUR_ROUTING_NUMBER', 'YOUR_ACCOUNT_NUMBER', 'YOUR_SWIFT_CODE');
+
 -- ============================================================
 --  TABLE: wire_transfer
 -- ============================================================

@@ -85,7 +85,7 @@ if(isset($_POST['regSubmit'])){
             }
 
             /* ── INSERT INTO DATABASE ── */
-            $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_email,acct_password,acct_no,acct_type,acct_gender,acct_currency,acct_status,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_pin,ssn,\"frontID\",\"backID\",image) VALUES(:acct_username,:firstname,:lastname,:acct_email,:acct_password,:acct_no,:acct_type,:acct_gender,:acct_currency,:acct_status,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_pin,:ssn,:frontID,:backID,:image)";
+            $registered = "INSERT INTO users (acct_username,firstname,lastname,acct_email,acct_password,acct_no,acct_type,acct_gender,acct_currency,acct_status,acct_phone,acct_occupation,country,state,acct_address,acct_dob,acct_pin,ssn,`frontID`,`backID`,image) VALUES(:acct_username,:firstname,:lastname,:acct_email,:acct_password,:acct_no,:acct_type,:acct_gender,:acct_currency,:acct_status,:acct_phone,:acct_occupation,:country,:state,:acct_address,:acct_dob,:acct_pin,:ssn,:frontID,:backID,:image)";
             $reg = $conn->prepare($registered);
             $reg->execute([
                 'acct_username'   => $acct_username,
@@ -111,14 +111,18 @@ if(isset($_POST['regSubmit'])){
                 'image'           => $n,
             ]);
 
-            /* ── Send welcome emails ── */
-            $fullName = $firstname . ' ' . $lastname;
-            $email    = $acct_email;
-            $APP_NAME = $pageTitle;
-            $APP_URL  = WEB_URL;
-            $message  = $sendMail->regMsgUser($fullName,$acct_no,$acct_status,$acct_email,$acct_phone,$acct_type,$acct_pin,$APP_NAME,$APP_URL);
-            $email_message->send_mail($email,  $message, "Register - $APP_NAME");
-            $email_message->send_mail(WEB_EMAIL, $message, "User Register - $APP_NAME");
+            /* ── Send welcome emails (non-fatal — mail failure must not break registration) ── */
+            try {
+                $fullName = $firstname . ' ' . $lastname;
+                $email    = $acct_email;
+                $APP_NAME = $pageTitle;
+                $APP_URL  = WEB_URL;
+                $msg      = $sendMail->regMsgUser($fullName,$acct_no,$acct_status,$acct_email,$acct_phone,$acct_type,$acct_pin,$APP_NAME,$APP_URL);
+                $email_message->send_mail($email,   $msg, "Register - $APP_NAME");
+                $email_message->send_mail(WEB_EMAIL, $msg, "User Register - $APP_NAME");
+            } catch (Exception $e) {
+                error_log('Registration email failed: ' . $e->getMessage());
+            }
 
             toast_alert('success', 'Account Created Successfully, Kindly proceed to login', 'Approved');
 

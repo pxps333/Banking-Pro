@@ -1,8 +1,9 @@
 <?php
-$pageName = "Credit Debit Transaction";
+$pageName = "Credit / Debit Transactions";
 //session_start();
-// include_once("layouts/tranheader.php");
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Transactions','#'],['Credit / Debit',null]];
+include_once('layouts/breadcrumb.php');
 
 //require_once("../include/config.php");
 

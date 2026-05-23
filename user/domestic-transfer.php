@@ -1,6 +1,8 @@
 <?php
 $pageName = "Domestic Transfer";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Banking','#'],['Domestic Transfer',null]];
+include_once('layouts/breadcrumb.php');
 require_once("./userPinfunction.php");
 //require_once("../include/config.php");
 //require_once("../include/loginFunction.php");

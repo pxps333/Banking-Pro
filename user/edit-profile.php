@@ -1,7 +1,8 @@
 <?php
-$pageName = "Edit Account";
-//session_start();
+$pageName = "Edit Profile";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Account','#'],['Edit Profile',null]];
+include_once('layouts/breadcrumb.php');
 
 //require_once("../include/config.php");
 //require_once("../include/userFunction.php");

@@ -1,6 +1,8 @@
 <?php
-$pageName = "Loan";
+$pageName = "Loans & Mortgages";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Services','#'],['Loans & Mortgages',null]];
+include_once('layouts/breadcrumb.php');
 $acct_id = userDetails('id');
 
 

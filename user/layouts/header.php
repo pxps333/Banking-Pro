@@ -1,708 +1,370 @@
 <?php
 ob_start();
-// session_start();
 require_once ('../session.php');
 require_once("../include/loginFunction.php");
-//require_once("../include/userFunction.php");
 require_once("../include/userClass.php");
 require_once ("../include/twilioController.php");
 
-
-
-//  session_start();  
-      if(isset($_SESSION["name"]))  
-      {  
-           if((time() - $_SESSION['last_login_timestamp']) > 60) // 900 = 15 * 60  
-           {  
-                header("location:logout.php");  
-           }  
-           else  
-           {  
-                $_SESSION['last_login_timestamp'] = time();  
-                echo "<h1 align='center'>".$_SESSION["name"]."</h1>";  
-                echo '<h1 align="center">'.$_SESSION['last_login_timestamp'].'</h1>';  
-                echo "<p align='center'><a href='logout.php'>Logout</a></p>";  
-           }  
-      }  
-      
-      
 if(!$_SESSION['acct_no']) {
     header("location:../login.php");
     exit;
 }
 
+$conn = dbConnect();
+
 $sql = "SELECT * FROM settings WHERE id ='1'";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
-
 $page = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$title = $page['url_name'];
-
-$pageTitle = $title;
-$testApi = NULL;
-
-$url_email = $page['url_email'];
-$livechat = $page['livechat'];
+$title       = $page['url_name'];
+$pageTitle   = $title;
+$url_email   = $page['url_email'];
+$livechat    = $page['livechat'];
 $trans_limit_min = $page['trans_limit_min'];
 $trans_limit_max = $page['trans_limit_max'];
 
-
-
-$viesConn="SELECT * FROM users WHERE acct_no = :acct_no";
+$viesConn = "SELECT * FROM users WHERE acct_no = :acct_no";
 $stmt = $conn->prepare($viesConn);
-
-$stmt->execute([
-    ':acct_no'=>$_SESSION['acct_no']
-]);
+$stmt->execute([':acct_no' => $_SESSION['acct_no']]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$user_id = $row['id'];
-
-$acct_stat = $row['acct_status'];
-
-// // audit_logs
-$sql = "SELECT * FROM audit_logs ORDER BY datenow DESC";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-
-$logs = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$device = $logs['device'];
-$ipAddress = $logs['ipAddress'];
-$datenow = $logs['datenow'];
-
-
-
-
-
-
-
-
-// //TEMP TRANSACTION FETCH
-$sql = "SELECT * FROM temp_trans WHERE acct_id =:acct_id ORDER BY wire_id DESC LIMIT 1";
-$stmt = $conn->prepare($sql);
-$stmt->execute([
-    'acct_id'=>$user_id
-]);
-$temp_trans = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
+$user_id    = $row['id'];
+$acct_stat  = $row['acct_status'];
 $limitRemain = $row['limit_remain'];
-// show balance 6,78.76
 $acct_balance = $row['acct_balance'];
 $avail_balance = $row['avail_balance'];
+$fullName   = $row['firstname']." ".$row['lastname'];
+$email      = $row['acct_email'];
 
-$fullName = $row['firstname']." ".$row['lastname'];
-$email = $row['acct_email'];
+$sqlLog = "SELECT * FROM audit_logs ORDER BY datenow DESC";
+$stmtLog = $conn->prepare($sqlLog);
+$stmtLog->execute();
+$logs = $stmtLog->fetch(PDO::FETCH_ASSOC);
+$device    = $logs['device'] ?? '';
+$ipAddress = $logs['ipAddress'] ?? '';
+$datenow   = $logs['datenow'] ?? '';
+
+$sql = "SELECT * FROM temp_trans WHERE acct_id =:acct_id ORDER BY wire_id DESC LIMIT 1";
+$stmt = $conn->prepare($sql);
+$stmt->execute(['acct_id' => $user_id]);
+$temp_trans = $stmt->fetch(PDO::FETCH_ASSOC);
+
 $currency = currency($row);
-
 $userStatus = userStatus($row);
 
-$title = new pageTitle();
+$title_obj    = new pageTitle();
 $email_message = new message();
-$sendMail = new emailMessage();
-$sendSms = new twilioController();
-
+$sendMail      = new emailMessage();
+$sendSms       = new twilioController();
 
 $sql2 = "SELECT * FROM card WHERE user_id=:user_id";
 $cardstmt = $conn->prepare($sql2);
-$cardstmt->execute([
-    'user_id' => $user_id
-]);
-
-
-
+$cardstmt->execute(['user_id' => $user_id]);
 $cardCheck = $cardstmt->fetch(PDO::FETCH_ASSOC);
 
-if ($row['acct_currency'] === 'USD') {
-    $currency = "$";
-} elseif ($row['acct_currency'] === 'Euro') {
-    $currency = "€";
-} elseif ($row['acct_currency'] === 'Yuan') {
-    $currency = "¥";
-} elseif ($row['acct_currency'] === 'GBP') {
-    $currency = "£";
-} elseif ($row['acct_currency'] === 'CAD') {
-    $currency = "¢";
-}
+if ($row['acct_currency'] === 'USD')       { $currency = "$"; }
+elseif ($row['acct_currency'] === 'Euro')  { $currency = "€"; }
+elseif ($row['acct_currency'] === 'Yuan')  { $currency = "¥"; }
+elseif ($row['acct_currency'] === 'GBP')   { $currency = "£"; }
+elseif ($row['acct_currency'] === 'CAD')   { $currency = "CA$"; }
 
+// Fetch recent transactions for notification dropdown
+$sqlNotif = "SELECT * FROM transactions WHERE user_id=:uid ORDER BY trans_id DESC LIMIT 5";
+$stmtNotif = $conn->prepare($sqlNotif);
+$stmtNotif->execute(['uid' => $user_id]);
+$notifTransactions = $stmtNotif->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch recent loans for message dropdown
+$sqlLoans = "SELECT * FROM loan WHERE acct_id=:uid ORDER BY loan_id DESC LIMIT 3";
+$stmtLoans = $conn->prepare($sqlLoans);
+$stmtLoans->execute(['uid' => $user_id]);
+$notifLoans = $stmtLoans->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta http-equiv="Content-Type; encoding" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title><?=$pageName?> - <?=$pageTitle ?> </title>
+    <title><?= htmlspecialchars($pageName) ?> — <?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico" />
-    <link href="../assets/css/loader.css" rel="stylesheet" type="text/css" />
-    <?php
-    $url_array =  explode('/', $_SERVER['REQUEST_URI']) ;
-    $url = end($url_array);
-    ?>
-    <script src="../assets/js/loader.js"></script>
-    <!--     BEGIN GLOBAL MANDATORY STYLES-->
-    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,600,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Raleway|Rock+Salt|Source+Code+Pro:300,400,600" rel="stylesheet">
-    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="../assets/css/plugins.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../assets/css/forms/custom-clipboard.css">
-    <!--     END GLOBAL MANDATORY STYLES-->
 
-    <link rel="stylesheet" href="../plugins/font-icons/fontawesome/css/regular.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
     <link rel="stylesheet" href="../plugins/font-icons/fontawesome/css/fontawesome.css">
+    <link rel="stylesheet" href="../plugins/font-icons/fontawesome/css/regular.css">
 
-    <!--     BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES-->
-    <link href="../plugins/apex/apexcharts.css" rel="stylesheet" type="text/css">
-    <link href="../assets/css/dashboard/dash_1.css" rel="stylesheet" type="text/css" />
-    <link href="../assets/css/components/cards/card.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../plugins/bootstrap-select/bootstrap-select.min.css">
-    <!--    profile css-->
-    <link rel="stylesheet" type="text/css" href="../plugins/dropify/dropify.min.css">
-    <link href="../assets/css/users/account-setting.css" rel="stylesheet" type="text/css" />
-    <link href="../assets/css/components/custom-modal.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="../assets/css/card/card.css">
-    <link rel="stylesheet" href="../assets/css/card/displayCard.css">
-    <!--    <link href="../assets/css/users/user-profile.css" rel="stylesheet" type="text/css" />-->
+    <!-- Core styles -->
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/dashboard/modern_dash.css" rel="stylesheet">
+    <link href="../plugins/apex/apexcharts.css" rel="stylesheet">
+    <link href="../plugins/sweetalerts/sweetalert2.min.css" rel="stylesheet">
+    <link href="../plugins/sweetalerts/sweetalert.css" rel="stylesheet">
+    <link href="../assets/css/components/custom-sweetalert.css" rel="stylesheet">
+    <link href="../plugins/notification/snackbar/snackbar.min.css" rel="stylesheet">
+    <link href="../plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet">
+    <link href="../plugins/dropify/dropify.min.css" rel="stylesheet">
+    <link href="../assets/css/users/account-setting.css" rel="stylesheet">
+    <link href="../assets/css/components/custom-modal.css" rel="stylesheet">
+    <link href="../assets/css/card/card.css" rel="stylesheet">
+    <link href="../assets/css/card/displayCard.css" rel="stylesheet">
+    <link href="../assets/css/elements/alert.css" rel="stylesheet">
+    <link href="../assets/css/forms/custom-clipboard.css" rel="stylesheet">
+    <link href="../plugins/table/datatable/datatables.css" rel="stylesheet">
 
-    <!--    end of table css-->
-
-
-    <!-- toaster -->
-    <link rel="stylesheet" type="text/css" href="../assets/css/elements/alert.css">
-    <link href="../plugins/notification/snackbar/snackbar.min.css" rel="stylesheet" type="text/css" />
-    <link href="../plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
-    <link href="../plugins/sweetalerts/sweetalert2.min.css" rel="stylesheet" type="text/css" />
-    <link href="../plugins/sweetalerts/sweetalert.css" rel="stylesheet" type="text/css" />
-    <link href="../assets/css/components/custom-sweetalert.css" rel="stylesheet" type="text/css" />
-    <script src="../plugins/sweetalerts/promise-polyfill.js"></script>
-    <script src="../assets/js/libs/jquery-3.1.1.min.js"></script>
-
-
-
-
-    <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
-
-    <style>
-    @media screen and (max-width: 600px) {
-        .layout-visible { visibility:hidden;clear:both;float:left;margin:10px auto 5px 20px;width:28%;display:none; }
-    }
-    .bp-brand-logo { display:flex;align-items:center;gap:8px;text-decoration:none;margin:0 10px; }
-    .bp-brand-logo img { height:30px;width:auto;object-fit:contain;filter:drop-shadow(0 0 6px rgba(59,130,246,0.35)); }
-    .bp-brand-logo span { font-size:.88rem;font-weight:700;color:#3b82f6;letter-spacing:-.01em;white-space:nowrap; }
-    .bp-dm-toggle { display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#888ea8;cursor:pointer;font-size:16px;transition:all 0.2s;flex-shrink:0; }
-    .bp-dm-toggle:hover { border-color:rgba(59,130,246,0.4);color:#3b82f6;box-shadow:0 0 12px rgba(59,130,246,0.15); }
-    .bp-dm-toggle .icon-sun { display:none; }
-    .bp-dm-toggle .icon-moon { display:block; }
-    body.bp-dark { background:#070a12 !important;color:#e2e8f0 !important; }
-    body.bp-dark .header-container { background:#0d1117 !important;border-bottom:1px solid rgba(255,255,255,0.07) !important; }
-    body.bp-dark .sidebar-wrapper { background:#0d1117 !important;border-right:1px solid rgba(255,255,255,0.06) !important; }
-    body.bp-dark .main-container { background:#070a12 !important; }
-    body.bp-dark .widget,.bp-dark .card { background:#0d1117 !important;border:1px solid rgba(255,255,255,0.07) !important;color:#e2e8f0 !important; }
-    body.bp-dark .widget-content-area { background:#0d1117 !important;color:#e2e8f0 !important; }
-    body.bp-dark table,body.bp-dark td,body.bp-dark th { color:#e2e8f0 !important; }
-    body.bp-dark .profile-info { background:#0d1117 !important; }
-    body.bp-dark .bp-dm-toggle .icon-sun { display:block; }
-    body.bp-dark .bp-dm-toggle .icon-moon { display:none; }
-    </style>
+    <!-- Apply theme before paint to avoid flash -->
     <script>
     (function(){
-      if(localStorage.getItem('bp_theme')==='dark') document.documentElement.style.background='#070a12';
+        var t = localStorage.getItem('bp_theme') || 'light';
+        if(t === 'dark') document.documentElement.classList.add('bp-dark-pre');
     })();
     </script>
+    <style>
+    html.bp-dark-pre body { background: #0f1117 !important; }
+    /* Compatibility shim for old widgets that use legacy CSS */
+    .widget, .widget-two, .widget-account-invoice-three, .widget-table-two {
+        background: var(--bp-surface) !important;
+        border: 1px solid var(--bp-border) !important;
+        border-radius: var(--bp-radius) !important;
+        box-shadow: var(--bp-shadow) !important;
+        color: var(--bp-text) !important;
+    }
+    .widget-content-area, .invoice-list { background: var(--bp-surface) !important; }
+    body.bp-dark .widget, body.bp-dark .widget-two { background: var(--bp-surface) !important; color: var(--bp-text) !important; }
+    /* DataTables compat */
+    table.dataTable thead th, table.dataTable tbody td { color: var(--bp-text2) !important; border-color: var(--bp-border) !important; }
+    body.bp-dark table.dataTable { background: var(--bp-surface) !important; }
+    /* SweetAlert compat */
+    .swal2-popup { background: var(--bp-surface) !important; color: var(--bp-text) !important; }
+    </style>
 
-
-
-
-
+    <script src="../assets/js/libs/jquery-3.1.1.min.js"></script>
+    <script src="../plugins/sweetalerts/promise-polyfill.js"></script>
 </head>
 
-<body class="sidebar-noneoverflow">
-    <!-- BEGIN LOADER -->
-    <div id="load_screen">
-        <div class="loader">
-            <div class="loader-content">
-                <div class="spinner-grow align-self-center"></div>
-            </div>
+<body>
+
+<!-- Loader -->
+<div id="bp-loader">
+    <div class="bp-spinner"></div>
+</div>
+
+<!-- Mobile overlay -->
+<div class="bp-overlay" id="bpOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="bp-sidebar" id="bpSidebar">
+    <div class="bp-sidebar-brand">
+        <img src="../assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?>">
+        <span><?= htmlspecialchars($pageTitle) ?></span>
+    </div>
+
+    <div class="bp-sidebar-user">
+        <img src="../assets/profile/<?= htmlspecialchars($row['image'] ?? 'default.png') ?>" alt="avatar" class="bp-sidebar-user-av">
+        <div class="bp-sidebar-user-info">
+            <h6><?= htmlspecialchars($fullName) ?></h6>
+            <span><?= htmlspecialchars($row['acct_type'] ?? 'Account') ?></span>
         </div>
     </div>
-    <!--  END LOADER -->
 
-    <!--  BEGIN NAVBAR  -->
-    <div class="header-container fixed-top">
-        <header class="header navbar navbar-expand-sm">
+    <nav class="bp-sidebar-nav">
+        <div class="bp-sidebar-label">Main</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li class="bp-nav-item">
+                <a href="./dashboard.php" class="bp-nav-link <?php active('dashboard.php'); ?>">
+                    <i class="ri-home-4-line"></i> Dashboard
+                </a>
+            </li>
+        </ul>
 
-            <ul class="navbar-nav theme-brand flex-row  text-center">
-                <li class="nav-item theme-logo">
-                    <a href="./dashboard.php" class="bp-brand-logo">
-                        <img src="../assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?>">
-                        <span><?= htmlspecialchars($pageTitle) ?></span>
-                    </a>
-                </li>
-                <li class="nav-item toggle-sidebar">
-                    <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-list">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                            <line x1="3" y1="6" x2="3" y2="6"></line>
-                            <line x1="3" y1="12" x2="3" y2="12"></line>
-                            <line x1="3" y1="18" x2="3" y2="18"></line>
-                        </svg></a>
-                </li>
-            </ul>
+        <div class="bp-sidebar-label" style="margin-top:10px;">Banking</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li class="bp-nav-item">
+                <a href="./deposit.php" class="bp-nav-link <?php active('deposit.php'); ?>">
+                    <i class="ri-add-circle-line"></i> Online Deposit
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./domestic-transfer.php" class="bp-nav-link <?php active('domestic-transfer.php'); ?>">
+                    <i class="ri-send-plane-line"></i> Domestic Transfer
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./wire-transfer.php" class="bp-nav-link <?php active('wire-transfer.php'); ?>">
+                    <i class="ri-global-line"></i> Wire Transfer
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./withdrawal.php" class="bp-nav-link <?php active('withdrawal.php'); ?>">
+                    <i class="ri-hand-coin-line"></i> Withdrawal
+                </a>
+            </li>
+        </ul>
 
+        <div class="bp-sidebar-label" style="margin-top:10px;">Services</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li class="bp-nav-item">
+                <a href="./card.php" class="bp-nav-link <?php active('card.php'); ?>">
+                    <i class="ri-bank-card-line"></i> Virtual Card
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./loan.php" class="bp-nav-link <?php active('loan.php'); ?>">
+                    <i class="ri-money-dollar-circle-line"></i> Loans &amp; Mortgages
+                </a>
+            </li>
+        </ul>
 
-            <ul class="navbar-item flex-row search-ul">
-            </ul>
-            <ul class="navbar-item flex-row navbar-dropdown">
-
-
-                <li class="nav-item" style="display:flex;align-items:center;margin-right:8px;">
-                    <button class="bp-dm-toggle" id="bpDmToggle" title="Toggle dark/light mode">
-                        <span class="icon-moon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-                        <span class="icon-sun"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
-                    </button>
-                </li>
-                <li class="nav-item dropdown message-dropdown">
-                    <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="messageDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-message-circle">
-                            <path
-                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-                            </path>
-                        </svg><span class="badge badge-primary"></span>
-                    </a>
-                    <div class="dropdown-menu p-0 position-absolute" aria-labelledby="messageDropdown">
-                        <?php
-                    $acct_id = userDetails('id');
-
-                    $sql2 ="SELECT * FROM loan WHERE acct_id =:acct_id ORDER BY loan_id  DESC LIMIT 3";
-                    $wire = $conn->prepare($sql2);
-                    $wire->execute([
-                        'acct_id'=>$acct_id
-                    ]);
-
-
-
-                    while ($result = $wire->fetch(PDO::FETCH_ASSOC)){
-                        $transStatus = loanStatus($result);
-                        $loan_message = $result['loan_message'];
-                        ?>
-                        <div class="">
-                            <a class="dropdown-item">
-                                <div class="">
-
-                                    <div class="media">
-                                        <div class="user-img">
-                                            <div class="avatar avatar-xl">
-                                                <img src="../assets/profile/<?= $row['image']?>" width="100%" alt=""
-                                                    style="border-radius: 50%">
-                                            </div>
-                                        </div>
-                                        <div class="media-body">
-                                            <div class="">
-                                                <h5 class="usr-name text-info text-uppercase"><?= $transStatus?></h5>
-                                                <p class="msg-title text-danger"><?= $currency.$result['amount'] ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </a>
-                        </div>
-
-                        <?php
-                    }
-                    ?>
-                    </div>
-                </li>
-
-                <li class="nav-item dropdown notification-dropdown">
-                    <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="notificationDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-bell">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                        </svg><span class="badge badge-success"></span>
-                    </a>
-                    <div class="dropdown-menu position-absolute" aria-labelledby="notificationDropdown">
-                        <?php
-                    $acct_id = userDetails('id');
-
-                    $sql="SELECT * FROM transactions LEFT JOIN users ON transactions.user_id =users.id WHERE transactions.user_id =:acct_id order by transactions.trans_id DESC LIMIT 3";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->execute([
-                        'acct_id'=>$acct_id
-                    ]);
-                    $sn=1;
-                    while ($seed = $stmt->fetch(PDO::FETCH_ASSOC)){
-                        $transStatus = depositStatus($row);
-
-                        if($seed['trans_type'] === '1'){
-                            $trans_type = "<span class='text-success'>Credit [Alert]</span>";
-                            $trans_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                        }else if($seed['trans_type']=== '2'){
-                            $trans_type = "<span class='text-danger'>Debit [Alert]</span>";
-                            $trans_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle text-danger"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
-                        }
-
-
-
-                        ?>
-
-                        <div class="notification-scroll">
-                            <div class="dropdown-item">
-                                <div class="media ">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="feather feather-activity">
-                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                    </svg>
-                                    <div class="media-body">
-                                        <div class="data-info">
-                                            <h6 class=""><?=$trans_type ?></h6>
-                                            <p class=""><?= $currency.$seed['amount']?></p>
-                                        </div>
-
-                                        <div class="icon-status">
-                                            <?= $trans_icon ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <?php
-                    }
-                    ?>
-                    </div>
-                </li>
-
-                <li class="nav-item dropdown user-profile-dropdown  order-lg-0 order-1">
-                    <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-settings">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path
-                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                            </path>
-                        </svg>
-                    </a>
-                    <div class="dropdown-menu position-absolute" aria-labelledby="userProfileDropdown">
-                        <div class="user-profile-section">
-                            <div class="media mx-auto">
-                                <img src="../assets/profile/<?=$row['image']?>" class="img-fluid mr-2" alt="avatar">
-                                <div class="media-body">
-                                    <h5><?= $fullName ?></h5>
-                                    <p><?= $row['acct_type'] ?></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown-item">
-                            <a href="./profile.php">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-user">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg> <span>My Profile</span>
-                            </a>
-                        </div>
-                        <div class="dropdown-item">
-                            <a href="./loan-transaction.php">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-inbox">
-                                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                                    <path
-                                        d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
-                                    </path>
-                                </svg> <span>My Inbox</span>
-                            </a>
-                        </div>
-                        <div class="dropdown-item">
-                            <a href="./logout.php">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-log-out">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                    <polyline points="16 17 21 12 16 7"></polyline>
-                                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                                </svg> <span>Log Out</span>
-                            </a>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </header>
-    </div>
-    <!--  END NAVBAR  -->
-
-    <!--  BEGIN MAIN CONTAINER  -->
-    <div class="main-container" id="container">
-
-        <div class="overlay"></div>
-        <div class="search-overlay"></div>
-
-        <!--  BEGIN SIDEBAR  -->
-        <div class="sidebar-wrapper sidebar-theme">
-
-            <nav id="sidebar">
-                <div class="profile-info">
-                    <figure class="user-cover-image"></figure>
-                    <div class="user-info" aria-expanded="true">
-                        <img src="../assets/profile/<?= $row['image']?>" alt="avatar">
-                        <h5><?= $fullName ?></h5>
-                        <p class=""><?= $row['acct_type'] ?></p>
-                    </div>
-                </div>
-                <div class="shadow-bottom"></div>
-                <ul class="list-unstyled menu-categories" id="accordionExample">
-                    <li class="menu <?php active('dashboard.php');?>">
-                        <a href="./dashboard.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-home">
-                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                                </svg>
-                                <span>Dashboard</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-                    <li class="menu <?php active('deposit.php');?>">
-                        <a href="./deposit.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-dollar-sign">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                                <span>Online Deposit</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-                    <li class="menu <?php active('domestic-transfer.php');?> ">
-                        <a href="./domestic-transfer.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-share">
-                                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                                    <polyline points="16 6 12 2 8 6"></polyline>
-                                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                                </svg>
-                                <span>Domestic Transfer</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-                    <li class="menu <?php active('wire-transfer.php');?>">
-                        <a href="./wire-transfer.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-wifi">
-                                    <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                                    <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-                                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
-                                </svg>
-                                <span>Wire Transfer</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-                    <?php
-                if($cardstmt->rowCount() === 0){
-                ?>
-                    <li class="menu <?php active('card.php');?>">
-                        <a href="./card.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-credit-card">
-                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                                </svg>
-                                <span>Virtual Card</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-                    <?php
-                }else{
-                ?>
-                    <li class="menu <?php active('card.php');?>">
-                        <a href="./card.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-credit-card">
-                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                                </svg>
-                                <span>Virtual Card</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-                    <?php
-                }
-                ?>
-
-                    <li class="menu <?php active('loan.php');?>">
-                        <a href="./loan.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-download">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                                <span>Loan & Mortgages</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-
-
-                    <li class="menu">
-                        <a href="#starkit" data-toggle="collapse" aria-expanded="" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-credit-card">
-                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                                    <line x1="1" y1="10" x2="23" y2="10"></line>
-                                </svg>
-                                <span>All Transaction Logs</span>
-                            </div>
-                            <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-chevron-right">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </div>
-                        </a>
-                        <ul class="collapse submenu list-unstyled" id="starkit" data-parent="#accordionExample">
-                            <li>
-                                <a href="./credit-debit_transaction.php"> Credit / Debit Transaction </a>
-                            </li>
-                            <li>
-                                <a href="./wire-transaction.php"> Wire Transaction </a>
-                            </li>
-                            <li>
-                                <a href="./domestic-transaction.php"> Domestic Transaction </a>
-                            </li>
-                            <li>
-                                <a href="./loan-transaction.php"> Loan Transaction </a>
-                            </li>
-                            <li>
-                                <a href="./withdrawal-transaction.php"> All Withdrawal</a>
-                            </li>
-                            
-                        </ul>
-                    </li>
-
-
-
-                     <li class="menu <?php active('withdrawal.php');?>">
-                        <a href="./withdrawal.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-dollar-sign">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                                <span>Withdrawal</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-                    <li class="menu <?php active('account-manager.php');?>">
-                        <a href="./account-manager.php" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-dollar-sign">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                                <span>Account Manager</span>
-                            </div>
-
-
-                        </a>
-                    </li>
-
-                    <li class="menu">
-                        <a href="#starter-kit" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                            <div class="">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-settings">
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path
-                                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                    </path>
-                                </svg>
-                                <span>Settings</span>
-                            </div>
-                            <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-chevron-right">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </div>
-                        </a>
-                        <ul class="collapse submenu list-unstyled" id="starter-kit" data-parent="#accordionExample">
-                            <li>
-                                <a href="./profile.php"> Profile </a>
-                            </li>
-                            <li>
-                                <a href="./edit-profile.php"> Account </a>
-                            </li>
-                        </ul>
-                    </li>
-
+        <div class="bp-sidebar-label" style="margin-top:10px;">Transactions</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li class="bp-nav-item">
+                <a href="#txLogs" class="bp-nav-link bp-nav-collapsible" id="txToggle">
+                    <i class="ri-receipt-line"></i> All Logs
+                    <i class="ri-arrow-right-s-line bp-nav-chevron" style="margin-left:auto;"></i>
+                </a>
+                <ul class="bp-nav-submenu" id="txLogs">
+                    <li><a href="./credit-debit_transaction.php" class="<?php active('credit-debit_transaction.php'); ?>">Credit / Debit</a></li>
+                    <li><a href="./wire-transaction.php" class="<?php active('wire-transaction.php'); ?>">Wire</a></li>
+                    <li><a href="./domestic-transaction.php" class="<?php active('domestic-transaction.php'); ?>">Domestic</a></li>
+                    <li><a href="./loan-transaction.php" class="<?php active('loan-transaction.php'); ?>">Loan</a></li>
+                    <li><a href="./withdrawal-transaction.php" class="<?php active('withdrawal-transaction.php'); ?>">Withdrawals</a></li>
                 </ul>
+            </li>
+        </ul>
 
-            </nav>
+        <div class="bp-sidebar-label" style="margin-top:10px;">Account</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li class="bp-nav-item">
+                <a href="./profile.php" class="bp-nav-link <?php active('profile.php'); ?>">
+                    <i class="ri-user-line"></i> My Profile
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./account-manager.php" class="bp-nav-link <?php active('account-manager.php'); ?>">
+                    <i class="ri-user-star-line"></i> Account Manager
+                </a>
+            </li>
+            <li class="bp-nav-item">
+                <a href="./logout.php" class="bp-nav-link">
+                    <i class="ri-logout-box-r-line"></i> Sign Out
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
 
+<!-- Top Navbar -->
+<header class="bp-navbar">
+    <button class="bp-navbar-toggle" id="bpSidebarToggle" aria-label="Toggle sidebar">
+        <i class="ri-menu-line" style="font-size:20px;"></i>
+    </button>
+
+    <div class="bp-navbar-spacer"></div>
+
+    <!-- Dark mode toggle -->
+    <button class="bp-dm-btn" id="bpDmToggle" title="Toggle dark/light mode">
+        <span class="moon"><i class="ri-moon-line" style="font-size:16px;"></i></span>
+        <span class="sun"><i class="ri-sun-line" style="font-size:16px;"></i></span>
+    </button>
+
+    <!-- Notifications -->
+    <div class="bp-dropdown">
+        <button class="bp-navbar-icon" id="bpNotifBtn" title="Notifications">
+            <i class="ri-notification-3-line" style="font-size:19px;"></i>
+            <?php if(count($notifTransactions) > 0): ?>
+            <span class="bp-navbar-badge"></span>
+            <?php endif; ?>
+        </button>
+        <div class="bp-dropdown-menu" id="bpNotifMenu" style="min-width:300px;">
+            <div style="padding:12px 16px 8px;font-size:.78rem;font-weight:700;color:var(--bp-text3);text-transform:uppercase;letter-spacing:.07em;">Recent Transactions</div>
+            <?php foreach($notifTransactions as $notif):
+                $ntype = ($notif['trans_type'] == '1') ? 'Credit' : 'Debit';
+                $ncolor = ($notif['trans_type'] == '1') ? 'var(--bp-green)' : 'var(--bp-red)';
+                $nicon  = ($notif['trans_type'] == '1') ? 'ri-arrow-down-line' : 'ri-arrow-up-line';
+            ?>
+            <div class="bp-dropdown-item">
+                <div style="width:32px;height:32px;border-radius:8px;background:<?= ($notif['trans_type']=='1') ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.12)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="<?= $nicon ?>" style="color:<?= $ncolor ?>;font-size:15px;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:.8rem;font-weight:600;color:var(--bp-text);"><?= htmlspecialchars(substr($notif['description'],0,28)) ?>...</div>
+                    <div style="font-size:.72rem;color:<?= $ncolor ?>;font-weight:700;"><?= $currency.number_format($notif['amount'],2) ?></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php if(empty($notifTransactions)): ?>
+            <div style="text-align:center;padding:24px;font-size:.8rem;color:var(--bp-text3);">No recent transactions</div>
+            <?php endif; ?>
+            <div class="bp-dropdown-divider"></div>
+            <a href="./credit-debit_transaction.php" class="bp-dropdown-item" style="justify-content:center;color:var(--bp-primary);font-size:.8rem;font-weight:700;">View All Transactions</a>
         </div>
-        <!--  END SIDEBAR  -->
+    </div>
+
+    <!-- Loans bell -->
+    <div class="bp-dropdown">
+        <button class="bp-navbar-icon" id="bpMsgBtn" title="Loan Updates">
+            <i class="ri-mail-line" style="font-size:19px;"></i>
+            <?php if(count($notifLoans) > 0): ?>
+            <span class="bp-navbar-badge" style="background:var(--bp-orange);"></span>
+            <?php endif; ?>
+        </button>
+        <div class="bp-dropdown-menu" id="bpMsgMenu" style="min-width:280px;">
+            <div style="padding:12px 16px 8px;font-size:.78rem;font-weight:700;color:var(--bp-text3);text-transform:uppercase;letter-spacing:.07em;">Loan Updates</div>
+            <?php foreach($notifLoans as $ln):
+                $lnStatus = loanStatus($ln);
+            ?>
+            <div class="bp-dropdown-item">
+                <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="ri-money-dollar-circle-line" style="color:var(--bp-orange);font-size:15px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:.8rem;font-weight:600;color:var(--bp-text);"><?= $currency.number_format($ln['amount'],2) ?></div>
+                    <div style="font-size:.72rem;color:var(--bp-text3);"><?= $lnStatus ?></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php if(empty($notifLoans)): ?>
+            <div style="text-align:center;padding:24px;font-size:.8rem;color:var(--bp-text3);">No loan activity</div>
+            <?php endif; ?>
+            <div class="bp-dropdown-divider"></div>
+            <a href="./loan-transaction.php" class="bp-dropdown-item" style="justify-content:center;color:var(--bp-primary);font-size:.8rem;font-weight:700;">View All Loans</a>
+        </div>
+    </div>
+
+    <!-- User profile -->
+    <div class="bp-dropdown">
+        <img src="../assets/profile/<?= htmlspecialchars($row['image'] ?? 'default.png') ?>" class="bp-navbar-avatar" id="bpProfileBtn" alt="avatar">
+        <div class="bp-dropdown-menu" id="bpProfileMenu">
+            <div class="bp-dropdown-header">
+                <img src="../assets/profile/<?= htmlspecialchars($row['image'] ?? 'default.png') ?>" alt="avatar">
+                <div class="bp-dropdown-header-info">
+                    <h6><?= htmlspecialchars($fullName) ?></h6>
+                    <span><?= htmlspecialchars($row['acct_email'] ?? '') ?></span>
+                </div>
+            </div>
+            <div class="bp-dropdown-divider"></div>
+            <a href="./profile.php" class="bp-dropdown-item">
+                <i class="ri-user-line"></i> My Profile
+            </a>
+            <a href="./edit-profile.php" class="bp-dropdown-item">
+                <i class="ri-settings-3-line"></i> Settings
+            </a>
+            <a href="./loan-transaction.php" class="bp-dropdown-item">
+                <i class="ri-inbox-line"></i> My Inbox
+            </a>
+            <div class="bp-dropdown-divider"></div>
+            <a href="./logout.php" class="bp-dropdown-item" style="color:var(--bp-red);">
+                <i class="ri-logout-box-r-line"></i> Sign Out
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main class="bp-main">
+<div class="bp-content">

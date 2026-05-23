@@ -1,8 +1,8 @@
 <?php
 $pageName = "My Profile";
-include_once("layouts/headerprofile.php");
-require_once("../include/config.php");
-require_once("../include/userFunction.php");
+include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Account','#'],['My Profile',null]];
+include_once('layouts/breadcrumb.php');
 
 
 if (!$_SESSION['acct_no']) {

@@ -1,345 +1,449 @@
 <?php
 $pageName = "Dashboard";
 include_once("layouts/header.php");
-//include_once("../include/userFunction.php");
-if(!$_SESSION['acct_no']) {
-    header("location:../login.php");
-    die;
-}
+if(!$_SESSION['acct_no']) { header("location:../login.php"); die; }
 if(@!$_COOKIE['firstVisit']){
     setcookie("firstVisit", "no", time() + 3600);
-    notify_alert('Welcome Back '.$fullName." !",'success','3000','Close');
 }
-
 unset($_SESSION['wire_transfer'], $_SESSION['dom_transfer']);
 
+// ── Stats data ──
+$acct_id = $user_id;
+
+// Total transactions count and sum
+$sqlStats = "SELECT COUNT(*) as cnt, SUM(CASE WHEN trans_type='1' THEN amount ELSE 0 END) as total_in, SUM(CASE WHEN trans_type='2' THEN amount ELSE 0 END) as total_out FROM transactions WHERE user_id=:uid";
+$stmtStats = $conn->prepare($sqlStats);
+$stmtStats->execute(['uid' => $acct_id]);
+$stats = $stmtStats->fetch(PDO::FETCH_ASSOC);
+$total_in  = $stats['total_in']  ?? 0;
+$total_out = $stats['total_out'] ?? 0;
+
+// Monthly stats
+$sqlMonthly = "SELECT COUNT(*) as cnt, SUM(amount) as total FROM transactions WHERE user_id=:uid AND EXTRACT(MONTH FROM TO_TIMESTAMP(created_at,'YYYY-MM-DD')) = EXTRACT(MONTH FROM NOW())";
+$stmtMonthly = $conn->prepare($sqlMonthly);
+$stmtMonthly->execute(['uid' => $acct_id]);
+$monthly = $stmtMonthly->fetch(PDO::FETCH_ASSOC);
+
+// Pending transfers
+$sqlPending = "SELECT COUNT(*) as cnt FROM domestic_transfer WHERE acct_id=:uid AND dom_status=0";
+$stmtPending = $conn->prepare($sqlPending);
+$stmtPending->execute(['uid' => $acct_id]);
+$pendingDom = $stmtPending->fetch(PDO::FETCH_ASSOC);
+
+$sqlPendingWire = "SELECT COUNT(*) as cnt FROM wire_transfer WHERE acct_id=:uid AND wire_status=0";
+$stmtPW = $conn->prepare($sqlPendingWire);
+$stmtPW->execute(['uid' => $acct_id]);
+$pendingWire = $stmtPW->fetch(PDO::FETCH_ASSOC);
+
+$pending_count = ($pendingDom['cnt'] ?? 0) + ($pendingWire['cnt'] ?? 0);
+
+// Active loans
+$sqlLoans = "SELECT COUNT(*) as cnt, SUM(amount) as total FROM loan WHERE acct_id=:uid";
+$stmtLoansData = $conn->prepare($sqlLoans);
+$stmtLoansData->execute(['uid' => $acct_id]);
+$loanData = $stmtLoansData->fetch(PDO::FETCH_ASSOC);
+
+// Recent transactions (last 8)
+$sqlRecent = "SELECT * FROM transactions WHERE user_id=:uid ORDER BY trans_id DESC LIMIT 8";
+$stmtRecent = $conn->prepare($sqlRecent);
+$stmtRecent->execute(['uid' => $acct_id]);
+$recentTxns = $stmtRecent->fetchAll(PDO::FETCH_ASSOC);
+
+// Monthly chart data (last 6 months credit/debit)
+$chartData = [];
+for($m = 5; $m >= 0; $m--) {
+    $label = date('M', strtotime("-{$m} months"));
+    $monthNum = date('n', strtotime("-{$m} months"));
+    $yearNum  = date('Y', strtotime("-{$m} months"));
+    $sqlC = "SELECT COALESCE(SUM(CASE WHEN trans_type='1' THEN amount ELSE 0 END),0) as cr, COALESCE(SUM(CASE WHEN trans_type='2' THEN amount ELSE 0 END),0) as dr FROM transactions WHERE user_id=:uid AND EXTRACT(MONTH FROM TO_TIMESTAMP(created_at,'YYYY-MM-DD'))=:m AND EXTRACT(YEAR FROM TO_TIMESTAMP(created_at,'YYYY-MM-DD'))=:y";
+    $stmtC = $conn->prepare($sqlC);
+    $stmtC->execute(['uid' => $acct_id, 'm' => $monthNum, 'y' => $yearNum]);
+    $cd = $stmtC->fetch(PDO::FETCH_ASSOC);
+    $chartData[] = ['label' => $label, 'cr' => (float)$cd['cr'], 'dr' => (float)$cd['dr']];
+}
+
+$breadcrumbs = [['Home','./dashboard.php'],['Dashboard',null]];
 ?>
 
-<!--  BEGIN CONTENT AREA  -->
-<div id="content" class="main-content">
-    <div class="layout-px-spacing">
+<?php include_once('layouts/breadcrumb.php'); ?>
 
-        <div class="row layout-top-spacing">
+<!-- ── Balance Cards Row ── -->
+<div class="bp-balance-grid">
 
-            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-4 layout-spacing layout-visible">
-                <div class="widget widget-three">
-                    <div class="widget-heading">
-                        <h5 class="">Summary</h5>
+    <div class="bp-balance-card bp-bc-blue">
+        <div class="bp-bc-label">Total Balance</div>
+        <div class="bp-bc-amount"><?= $currency.number_format($acct_balance,2) ?></div>
+        <div class="bp-bc-footer">
+            <i class="ri-arrow-up-line"></i> Main Account
+        </div>
+        <div class="bp-bc-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+    </div>
 
+    <div class="bp-balance-card bp-bc-green">
+        <div class="bp-bc-label">Available Balance</div>
+        <div class="bp-bc-amount"><?= $currency.number_format($avail_balance,2) ?></div>
+        <div class="bp-bc-footer">
+            <i class="ri-checkbox-circle-line"></i> Ready to use
+        </div>
+        <div class="bp-bc-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M17 9V7a5 5 0 0 0-10 0v2"/><rect x="3" y="9" width="18" height="13" rx="2"/></svg>
+        </div>
+    </div>
 
-                        <div class="task-action">
-                            <div class="dropdown">
-                                <a class="dropdown-toggle" href="index.html#" role="button" id="pendingTask" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                                </a>
+    <div class="bp-balance-card bp-bc-orange">
+        <div class="bp-bc-label">Account Limit</div>
+        <div class="bp-bc-amount"><?= $currency.number_format($row['acct_limit'] ?? 0,2) ?></div>
+        <div class="bp-bc-footer">
+            <i class="ri-bar-chart-line"></i> Remaining: <?= $currency.number_format($limitRemain ?? 0,2) ?>
+        </div>
+        <div class="bp-bc-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+    </div>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pendingTask" style="will-change: transform;">
-                                    <a class="dropdown-item" href="javascript:void(0);">View Report</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Edit Report</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Mark as Done</a>
-                                </div>
-                            </div>
-                        </div>
+    <div class="bp-balance-card bp-bc-purple">
+        <div class="bp-bc-label">Loan Balance</div>
+        <div class="bp-bc-amount"><?= $currency.number_format($row['loan_balance'] ?? 0,2) ?></div>
+        <div class="bp-bc-footer">
+            <i class="ri-error-warning-line"></i> <?= $loanData['cnt'] ?? 0 ?> active loan(s)
+        </div>
+        <div class="bp-bc-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+    </div>
 
+</div>
+
+<!-- ── Stats Row ── -->
+<div class="bp-stats-grid bp-mb-24">
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-green"><i class="ri-arrow-down-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value"><?= $currency.number_format($total_in,2) ?></div>
+        <div class="bp-stat-label">Total Income</div>
+        <span class="bp-stat-change up"><i class="ri-arrow-up-line"></i> All time</span>
+    </div>
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-red"><i class="ri-arrow-up-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value"><?= $currency.number_format($total_out,2) ?></div>
+        <div class="bp-stat-label">Total Spent</div>
+        <span class="bp-stat-change down"><i class="ri-arrow-down-line"></i> All time</span>
+    </div>
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-orange"><i class="ri-time-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value"><?= $pending_count ?></div>
+        <div class="bp-stat-label">Pending Transfers</div>
+        <span class="bp-stat-change" style="background:rgba(245,158,11,.1);color:var(--bp-orange);">Awaiting</span>
+    </div>
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-blue"><i class="ri-exchange-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value"><?= $stats['cnt'] ?? 0 ?></div>
+        <div class="bp-stat-label">Total Transactions</div>
+        <span class="bp-stat-change up"><i class="ri-arrow-up-line"></i> All time</span>
+    </div>
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-purple"><i class="ri-bank-card-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value"><?= $cardstmt->rowCount() > 0 ? 'Active' : 'None' ?></div>
+        <div class="bp-stat-label">Virtual Card</div>
+        <a href="./card.php" style="font-size:.72rem;color:var(--bp-primary);font-weight:600;margin-top:6px;display:inline-block;">Manage →</a>
+    </div>
+
+    <div class="bp-stat-card">
+        <div class="bp-stat-icon bp-si-cyan"><i class="ri-shield-check-line" style="font-size:18px;"></i></div>
+        <div class="bp-stat-value" style="font-size:.9rem;text-transform:capitalize;"><?= htmlspecialchars($acct_stat ?? 'Active') ?></div>
+        <div class="bp-stat-label">Account Status</div>
+        <span class="bp-stat-change up">Verified</span>
+    </div>
+
+</div>
+
+<!-- ── Middle Row: Chart + Quick Actions ── -->
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px;" class="bp-row-chart">
+
+    <!-- Chart -->
+    <div class="bp-card">
+        <div class="bp-card-header">
+            <h3 class="bp-card-title">Transaction Overview</h3>
+            <span class="bp-card-badge">Last 6 Months</span>
+        </div>
+        <div class="bp-card-body">
+            <div id="bp-txn-chart" style="min-height:220px;"></div>
+        </div>
+    </div>
+
+    <!-- Account Summary -->
+    <div class="bp-card">
+        <div class="bp-card-header">
+            <h3 class="bp-card-title">Account Summary</h3>
+        </div>
+        <div class="bp-card-body">
+            <div class="bp-acct-info">
+
+                <div class="bp-acct-row">
+                    <span class="bp-acct-row-label">Account No.</span>
+                    <span class="bp-acct-row-val" style="font-family:monospace;font-size:.8rem;"><?= htmlspecialchars($row['acct_no']) ?></span>
+                </div>
+                <div class="bp-acct-row">
+                    <span class="bp-acct-row-label">Account Type</span>
+                    <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_type'] ?? '—') ?></span>
+                </div>
+                <div class="bp-acct-row">
+                    <span class="bp-acct-row-label">Currency</span>
+                    <span class="bp-acct-row-val"><?= htmlspecialchars($row['acct_currency'] ?? '—') ?></span>
+                </div>
+                <div class="bp-acct-row">
+                    <span class="bp-acct-row-label">Last Login IP</span>
+                    <span class="bp-acct-row-val" style="font-size:.75rem;color:var(--bp-text3);"><?= htmlspecialchars($ipAddress ?: '—') ?></span>
+                </div>
+                <div class="bp-acct-row">
+                    <span class="bp-acct-row-label">Last Login</span>
+                    <span class="bp-acct-row-val" style="font-size:.75rem;color:var(--bp-text3);"><?= htmlspecialchars(substr($datenow ?? '—', 0, 16)) ?></span>
+                </div>
+
+                <!-- Limit usage bar -->
+                <?php
+                $limitUsedPct = 0;
+                if(!empty($row['acct_limit']) && $row['acct_limit'] > 0) {
+                    $used = $row['acct_limit'] - ($limitRemain ?? 0);
+                    $limitUsedPct = min(100, max(0, round(($used / $row['acct_limit']) * 100)));
+                }
+                ?>
+                <div style="margin-top:6px;">
+                    <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--bp-text3);margin-bottom:6px;">
+                        <span>Limit Used</span>
+                        <span><?= $limitUsedPct ?>%</span>
                     </div>
-                    <div class="widget-content">
-
-                        <div class="order-summary">
-
-                            <div class="summary-list">
-                                <div class="w-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                                </div>
-                                <div class="w-summary-details">
-
-                                    <div class="w-summary-info">
-                                        <h6>Limit</h6>
-                                        <p class="summary-count"><?=$currency.$row['acct_limit'] ?></p>
-                                    </div>
-
-                                    <div class="w-summary-stats">
-                                        <div class="progress">
-                                            <div class="progress-bar bg-gradient-secondary" role="progressbar" style="width: 100%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="summary-list">
-                                <div class="w-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg>
-                                </div>
-                                <div class="w-summary-details">
-
-                                    <div class="w-summary-info">
-                                        <h6>Loan Balance</h6>
-                                        <p class="summary-count"><?= $currency.$row['loan_balance']?></p>
-                                    </div>
-
-                                    <div class="w-summary-stats">
-                                        <div class="progress">
-                                            <div class="progress-bar bg-gradient-success" role="progressbar" style="width: 100%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="summary-list">
-                                <div class="w-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                                </div>
-                                <div class="w-summary-details">
-
-                                    <div class="w-summary-info">
-                                        <h6>Expenses</h6>
-                                        <p class="summary-count"><?=$currency."".$limitRemain ?></p>
-                                    </div>
-
-                                    <div class="w-summary-stats">
-                                        <div class="progress">
-                                            <div class="progress-bar bg-gradient-warning" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
+                    <div class="bp-progress">
+                        <div class="bp-progress-bar bp-pb-orange" style="width:<?= $limitUsedPct ?>%;"></div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-4 layout-spacing layout-visible">
-                <div class="widget-two">
-                    <div class="widget-content">
-                        <div class="w-numeric-value">
-                            <div class="w-content">
-                                <span class="w-value">Daily Stats</span>
-                                <span class="w-numeric-title"><a class="text-primary" href="./credit-debit_transaction.php">Go to Transaction for details.</a></span>
-                            </div>
-                            <div class="w-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                            </div>
-                        </div>
-                        <div class="w-chart">
-                            <div id="daily-sales"></div>
-                        </div>
-                    </div>
+
+                <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+                    <a href="./domestic-transfer.php" class="bp-btn-primary" style="flex:1;justify-content:center;font-size:.78rem;padding:9px 10px;">
+                        <i class="ri-send-plane-line"></i> Send
+                    </a>
+                    <a href="./deposit.php" class="bp-btn-outline" style="flex:1;justify-content:center;font-size:.78rem;padding:8px 10px;">
+                        <i class="ri-add-line"></i> Deposit
+                    </a>
                 </div>
             </div>
-            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 layout-spacing">
+        </div>
+    </div>
 
-                <div class="widget widget-account-invoice-three">
+</div>
 
-                    <div class="widget-heading">
-                        <div class="wallet-usr-info">
-                            <div class="usr-name">
-                                <span><img src="../assets/profile/<?= $row['image']?>" alt="admin-profile" class="img-fluid"> <?php echo $fullName ?></span>
-                            </div>
-                            <div class="add">
-                                <span><a  data-toggle="modal" data-target="#exampleModal"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus text-white"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></a></span>
-                            </div>
-                        </div>
-                        <div class="wallet-balance">
-                            <p>Balance</p>
-                            <h5 class=""><span class="w-currency"><?php echo $currency?></span><?php echo number_format($acct_balance, 2, '.', ','); ?></h5>
-                        </div>
-                        
-                       
-                        
-                     
-                    </div>
+<!-- ── Bottom Row: Recent Transactions + News ── -->
+<div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;margin-bottom:24px;" class="bp-row-bottom">
 
-                    <div class="widget-amount">
+    <!-- Recent Transactions -->
+    <div class="bp-card">
+        <div class="bp-card-header">
+            <h3 class="bp-card-title">Recent Transactions</h3>
+            <a href="./credit-debit_transaction.php" class="bp-card-badge" style="text-decoration:none;">View All →</a>
+        </div>
+        <div class="bp-card-body" style="padding:0;">
+            <?php if(empty($recentTxns)): ?>
+            <div class="bp-empty">
+                <i class="ri-exchange-line" style="font-size:40px;opacity:.25;display:block;margin-bottom:10px;"></i>
+                <p>No transactions yet</p>
+            </div>
+            <?php else: ?>
+            <div style="overflow-x:auto;">
+            <table class="bp-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach($recentTxns as $tx):
+                    $isCredit = ($tx['trans_type'] == '1');
+                    $txStatus = transStatus($tx);
+                ?>
+                <tr>
+                    <td>
+                        <?php if($isCredit): ?>
+                        <span class="bp-tx-type bp-tx-credit"><i class="ri-arrow-down-line"></i> Credit</span>
+                        <?php else: ?>
+                        <span class="bp-tx-type bp-tx-debit"><i class="ri-arrow-up-line"></i> Debit</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="<?= $isCredit ? 'bp-tx-amount-pos' : 'bp-tx-amount-neg' ?>">
+                        <?= $isCredit ? '+' : '-' ?><?= $currency.number_format($tx['amount'],2) ?>
+                    </td>
+                    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars(substr($tx['description'],0,30)) ?></td>
+                    <td style="white-space:nowrap;font-size:.75rem;"><?= htmlspecialchars($tx['created_at']) ?></td>
+                    <td><?= $txStatus ?></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
-                        <div class="w-a-info funds-received">
-                            <span>Pending<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-
-
-                            <p>
-                                <!--<a  class="btn btn-success btn-sm col-12" data-toggle="modal" data-target="#exampleModal">Deposit</a>-->
-                               
-                                 
-                                <?php echo $currency?><?php echo number_format($avail_balance, 2, '.', ','); ?>
-                                 
-                            </p>
-                        </div>
-
-                        <div class="w-a-info funds-spent">
-                            <span>My Loan <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"></polyline></svg></span>
-                            <p class="text-danger"><?php echo $currency?><?php echo $row['loan_balance'] ?>
-
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="widget-content">
-
-                        <div class="bills-stats; text-center">
-                            <?php
-                            echo $userStatus
-                            ?>
-                        </div>
-
-                        <div class="invoice-list">
-
-                            <div class="inv-detail">
-                                <div class="info-detail-1">
-                                    <p>Account Limit</p>
-                                    <p><span class="w-currency"><?= $currency ?></span><span class="bill-amount"><?= $limitRemain ?></span></p>
-                                </div>
-                                
-                                
-                                 <?php
-                                $acct_id = userDetails('id');
-
-                                $sql2="SELECT * FROM transactions LEFT JOIN users ON transactions.user_id =users.id WHERE transactions.user_id =:acct_id order by transactions.trans_id DESC LIMIT 1";
-                                $stmt = $conn->prepare($sql2);
-                                $stmt->execute([
-                                    'acct_id'=>$acct_id
-                                ]);
-                                $sn=1;
-                                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                    $transStatus = transStatus($result);
-
-                                    if($result['trans_type'] === '1'){
-                                        $trans_type = "<span class='text-success'>Credit</span>";
-                                    }else if($result['trans_type']=== '2'){
-                                        $trans_type = "<span class='text-danger'>Debit</span>
-";
-                                    }
-
-                                    $senderName = $result['sender_name'];
-                                    $description = $result['description'];
-
-                                    ?>
-                              
-                             
-                                <div class="info-detail-3">
-                                    <p>Recent Transaction</p>
-                                    
-                                     <p><span> <?= $currency.$result['amount']    ?></span></p>
-                                </div>
-                          
-                              
-                                 <?php
-                        }
-                        ?>
-                        
-                         <div class="info-detail-2">
-                                    <p>Last Login IP:</p>
-                                    <p class=""><span class="bill-amount text-danger"><?= $logs['ipAddress'] ?> </span></p>
-                                </div>
-                                
-                                <div class="info-detail-2">
-                                    <p>Last Login Date:</p>
-                                    <p class=""><span class="bill-amount text-danger"><?= $logs['datenow'] ?> </span></p>
-                                </div>
-                          
-                          
-                            </div>
-
-                            <div class="inv-action">
-                                <a href="./domestic-transfer.php" class="btn btn-outline-primary view-details">Domestic Transfer</a>
-                                <a href="./wire-transfer.php" class="btn btn-outline-primary pay-now">Wire Transfer</a>
-                            </div>
-                        </div>
-                    </div>
-
+    <!-- Financial News -->
+    <div class="bp-card">
+        <div class="bp-card-header">
+            <h3 class="bp-card-title">Financial News</h3>
+            <span class="bp-card-badge">Live Feed</span>
+        </div>
+        <div class="bp-card-body">
+            <?php
+            $newsItems = [
+                ['emoji'=>'📈','source'=>'Reuters','title'=>'Global markets rally as inflation cools — investors optimistic on rate cuts','time'=>'2h ago'],
+                ['emoji'=>'🏦','source'=>'Bloomberg','title'=>'Federal Reserve signals pause on interest rate hikes amid steady growth','time'=>'4h ago'],
+                ['emoji'=>'💱','source'=>'FT','title'=>'Dollar weakens against major currencies as trade deficit narrows','time'=>'6h ago'],
+                ['emoji'=>'🪙','source'=>'CoinDesk','title'=>'Bitcoin surges past key resistance level on institutional buying','time'=>'8h ago'],
+                ['emoji'=>'📊','source'=>'WSJ','title'=>'S&P 500 notches fourth consecutive week of gains on tech rally','time'=>'10h ago'],
+            ];
+            foreach($newsItems as $news):
+            ?>
+            <div class="bp-news-item">
+                <div class="bp-news-img"><?= $news['emoji'] ?></div>
+                <div class="bp-news-body">
+                    <div class="bp-news-source"><?= $news['source'] ?></div>
+                    <div class="bp-news-title"><?= $news['title'] ?></div>
+                    <div class="bp-news-time"><i class="ri-time-line"></i> <?= $news['time'] ?></div>
                 </div>
             </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing ">
-                <div class="widget widget-table-two">
+</div>
 
-                    <div class="widget-heading">
-                        <h5 class="">Recent Credit/Debit Transactions</h5>
-                    </div>
+<!-- ── Quick Actions ── -->
+<div class="bp-card bp-mb-24">
+    <div class="bp-card-header">
+        <h3 class="bp-card-title">Quick Actions</h3>
+    </div>
+    <div class="bp-card-body">
+        <div class="bp-quick-actions">
+            <a href="./domestic-transfer.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-blue"><i class="ri-send-plane-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Domestic</span>
+            </a>
+            <a href="./wire-transfer.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-purple"><i class="ri-global-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Wire Transfer</span>
+            </a>
+            <a href="./deposit.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-green"><i class="ri-add-circle-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Deposit</span>
+            </a>
+            <a href="./withdrawal.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-orange"><i class="ri-hand-coin-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Withdraw</span>
+            </a>
+            <a href="./loan.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-red"><i class="ri-money-dollar-circle-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Apply Loan</span>
+            </a>
+            <a href="./card.php" class="bp-qa-btn">
+                <div class="bp-qa-icon bp-si-cyan"><i class="ri-bank-card-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">My Card</span>
+            </a>
+            <a href="./profile.php" class="bp-qa-btn">
+                <div class="bp-qa-icon" style="background:rgba(16,185,129,.1);color:var(--bp-green);"><i class="ri-user-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">Profile</span>
+            </a>
+            <a href="./credit-debit_transaction.php" class="bp-qa-btn">
+                <div class="bp-qa-icon" style="background:rgba(107,114,128,.1);color:#6b7280;"><i class="ri-receipt-line" style="font-size:18px;"></i></div>
+                <span class="bp-qa-label">History</span>
+            </a>
+        </div>
+    </div>
+</div>
 
-                    <div class="widget-content">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th><div class="th-content">S/N</div></th>
-                                    <!--                                    <th><div class="th-content">NAME</div></th>-->
-                                    <th><div class="th-content">AMOUNT</div></th>
-                                    <th><div class="th-content th-heading">TYPE</div></th>
-                                    <th><div class="th-content">SENDER / RECEIVER</div></th>
-                                    <th><div class="th-content">DESCRIPTION</div></th>
-                                    <th><div class="th-content th-heading">CREATED AT</div></th>
-                                    <th><div class="th-content th-heading">TIME CREATED</div></th>
-                                    <th><div class="th-content">Status</div></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php
-                                $acct_id = userDetails('id');
+<!-- Chart script -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var labels  = <?= json_encode(array_column($chartData,'label')) ?>;
+    var credits = <?= json_encode(array_column($chartData,'cr')) ?>;
+    var debits  = <?= json_encode(array_column($chartData,'dr')) ?>;
 
-                                $sql2="SELECT * FROM transactions LEFT JOIN users ON transactions.user_id =users.id WHERE transactions.user_id =:acct_id order by transactions.trans_id DESC LIMIT 5";
-                                 $stmt = $conn->prepare($sql2);
-                                $stmt->execute([
-                                    'acct_id'=>$acct_id
-                                ]);
-                                $sn=1;
-                                while ($result = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                     $transStatus = transStatus($result);
+    var isDark = document.body.classList.contains('bp-dark');
+    var textColor = isDark ? '#8a96b0' : '#5a6a85';
+    var gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
-                                    if($result['trans_type'] === '1'){
-                                        $trans_type = "<span class='text-success'>Credit</span>";
-                                    }else if($result['trans_type']=== '2'){
-                                        $trans_type = "<span class='text-danger'>Debit</span>
-";
-                                    }
+    var options = {
+        series: [
+            { name: 'Income', data: credits },
+            { name: 'Expenses', data: debits }
+        ],
+        chart: {
+            type: 'area',
+            height: 220,
+            toolbar: { show: false },
+            background: 'transparent',
+            sparkline: { enabled: false }
+        },
+        colors: ['#4361ee','#ef4444'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.25,
+                opacityTo: 0.02,
+                stops: [0, 90, 100]
+            }
+        },
+        stroke: { curve: 'smooth', width: 2.5 },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: labels,
+            labels: { style: { colors: textColor, fontSize: '11px' } },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: textColor, fontSize: '11px' },
+                formatter: function(v){ return '<?= $currency ?>'+v.toLocaleString(); }
+            }
+        },
+        grid: {
+            borderColor: gridColor,
+            strokeDashArray: 4
+        },
+        tooltip: {
+            y: { formatter: function(v){ return '<?= $currency ?>'+Number(v).toLocaleString(); } }
+        },
+        legend: {
+            labels: { colors: textColor }
+        }
+    };
 
-                                    $senderName = $result['sender_name'];
-                                    $description = $result['description'];
+    var chart = new ApexCharts(document.getElementById('bp-txn-chart'), options);
+    chart.render();
 
-                                    ?>
-                                    <tr>
-                                        <td><?= $sn++ ?>
-                                        </td>
+    // Re-render on theme toggle
+    document.getElementById('bpDmToggle').addEventListener('click', function(){
+        setTimeout(function(){
+            var d = document.body.classList.contains('bp-dark');
+            chart.updateOptions({
+                xaxis: { labels: { style: { colors: d ? '#8a96b0':'#5a6a85' } } },
+                yaxis: { labels: { style: { colors: d ? '#8a96b0':'#5a6a85' } } },
+                legend: { labels: { colors: d ? '#8a96b0':'#5a6a85' } },
+                grid:   { borderColor: d ? 'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)' }
+            });
+        }, 50);
+    });
+});
+</script>
 
-                                        <td>
-                                            <div class="td-content product-invoice"><?= $currency.$result['amount']    ?></div>
-                                        </td>
-                                        <td>
-                                            <div class="td-content product-brand text-primary"><?= $trans_type ?></div>
-                                        </td>
-                                        <td>
-                                            <div class="td-content product-invoice"><?= substr($senderName,0,15) ?></div>
-                                        </td>
-                                        <td>
-                                            <div class="td-content product-brand "><?= substr($description,0,15) ?></div>
-                                        </td>
-                                        <td>
-                                            <div class="td-content product-invoice"><?= $result['created_at'] ?></div>
-                                        </td>
-
-                                        <td>
-                                            <div class="td-content pricing"><span class=""><?= $result['time_created'] ?></span></div>
-                                        </td>
-                                        <td>
-                                            <div class="td-content"><span class=""><?= $transStatus ?></span></div>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                }
-                                ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-
-
-
-                    <?php
-                    include_once('layouts/footer.php')
-                    ?>
+<?php
+include_once('layouts/footer.php');
+?>

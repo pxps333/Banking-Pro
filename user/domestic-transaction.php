@@ -1,7 +1,8 @@
 <?php
-$pageName = "Domestic Transaction";
-// include_once("layouts/tranheader.php");
+$pageName = "Domestic Transactions";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Transactions','#'],['Domestic',null]];
+include_once('layouts/breadcrumb.php');
 $acct_id = userDetails('id');
 // $crypto_name = cryptoName('crypto_name');
 

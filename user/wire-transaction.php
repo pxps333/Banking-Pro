@@ -1,8 +1,8 @@
 <?php
-$pageName = "View Wire Transaction";
-//session_start();
-// include_once("layouts/tranheader.php");
+$pageName = "Wire Transactions";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Transactions','#'],['Wire Transactions',null]];
+include_once('layouts/breadcrumb.php');
 //require_once("../include/config.php");
 
 //require_once("../include/userFunction.php");

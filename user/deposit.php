@@ -3,6 +3,8 @@
 $pageName = "Funding";
 include("../include/vendor/autoload.php");
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Deposit',null]];
+include_once('layouts/breadcrumb.php');
 //require_once("../include/config.php");
 //require_once("../include/userFunction.php");
 //require_once('../include/userClass.php');

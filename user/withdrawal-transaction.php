@@ -1,7 +1,8 @@
 <?php
-$pageName = "Withdawal Transaction";
-// include_once("layouts/tranheader.php");
+$pageName = "Withdrawal History";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Transactions','#'],['Withdrawals',null]];
+include_once('layouts/breadcrumb.php');
 $user_id = userDetails('id');
 // $crypto_name = cryptoName('crypto_name');
 

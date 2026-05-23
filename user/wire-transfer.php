@@ -1,6 +1,8 @@
 <?php
 $pageName = "Wire Transfer";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Banking','#'],['Wire Transfer',null]];
+include_once('layouts/breadcrumb.php');
 require_once("userPinfunction.php");
 
 

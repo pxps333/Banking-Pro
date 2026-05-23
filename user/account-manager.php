@@ -1,7 +1,8 @@
 <?php
-//session_start();
 $pageName = "Account Manager";
 include_once("layouts/header.php");
+$breadcrumbs = [['Home','./dashboard.php'],['Account','#'],['Account Manager',null]];
+include_once('layouts/breadcrumb.php');
 //require_once("../include/config.php");
 //require_once("../include/userFunction.php");
 //require_once('../include/userClass.php');

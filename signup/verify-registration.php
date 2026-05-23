@@ -138,13 +138,58 @@ if(isset($_POST['regSubmit'])){
 
 <section class="wizard-section">
     <div class="row no-gutters">
-        <div class="col-lg-6 col-md-6 container-div">
-            <div class="wizard-content-left d-flex justify-content-center align-items-center">
-                <h1>Create Your Bank Account</h1>
+        <div class="col-lg-5 col-md-5 container-div">
+            <div class="wizard-content-left">
+                <div class="wiz-left-inner">
+                    <img src="../assets/images/logo/<?= htmlspecialchars($page['image'] ?? 'logo.png') ?>" alt="<?= htmlspecialchars($pageTitle) ?>" class="wiz-left-logo">
+                    <h1>Open Your Account Today</h1>
+                    <p class="wiz-left-tagline">Fast, secure &amp; 100% online banking</p>
+                    <ul class="wiz-left-features">
+                        <li>
+                            <div class="wiz-feat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </div>
+                            <div class="wiz-feat-text">
+                                <strong>Bank-Level Security</strong>
+                                <span>Your data is encrypted end-to-end at all times.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="wiz-feat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            </div>
+                            <div class="wiz-feat-text">
+                                <strong>Instant Transfers</strong>
+                                <span>Send and receive money with zero delays.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="wiz-feat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                            </div>
+                            <div class="wiz-feat-text">
+                                <strong>24/7 Account Access</strong>
+                                <span>Manage your finances anytime, anywhere.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="wiz-feat-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="wiz-feat-text">
+                                <strong>No Credit Score Impact</strong>
+                                <span>Opening an account never affects your credit.</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <hr class="wiz-left-divider">
+                    <p class="wiz-left-login-link">Already have an account? <a href="../login.php">Sign in here</a></p>
+                </div>
             </div>
         </div>
-        <div class="col-lg-6 col-md-6 container-div">
+        <div class="col-lg-7 col-md-7 container-div">
             <div class="form-wizard">
+              <div class="form-wizard-card">
                 <form action="" method="post" role="form" enctype="multipart/form-data">
                     <div class="form-wizard-header">
                         <p>Fill all form field to go next step</p>
@@ -780,7 +825,8 @@ if(isset($_POST['regSubmit'])){
     }
 })();
 </script>
-            </div>
+              </div><!-- /.form-wizard-card -->
+            </div><!-- /.form-wizard -->
         </div>
     </div>
 </section>

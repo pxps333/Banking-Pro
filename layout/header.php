@@ -103,25 +103,69 @@ $sendMail = new emailMessage();
     .btn-primary:hover { transform:translateY(-1px);box-shadow:0 8px 28px rgba(59,130,246,0.45) !important; }
     .forgot-pass-link { color:#3b82f6 !important;font-weight:600; }
     .forgot-pass-link:hover { color:#2563eb !important; }
-    /* Dark/light toggle for auth pages */
-    .bp-dm-toggle-auth { position:fixed;top:16px;right:16px;z-index:9999;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#94a3b8;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
-    .bp-dm-toggle-auth:hover { border-color:rgba(59,130,246,0.4);color:#3b82f6;box-shadow:0 0 14px rgba(59,130,246,0.15); }
+
+    /* ── Dark/light toggle ── */
+    .bp-dm-toggle-auth {
+        position:fixed;top:16px;right:16px;z-index:9999;
+        width:38px;height:38px;border-radius:10px;
+        border:1px solid #e0e6ed;background:#fff;
+        color:#3b3f5c;cursor:pointer;display:flex;
+        align-items:center;justify-content:center;
+        transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    }
+    .bp-dm-toggle-auth:hover { border-color:#4361ee;color:#4361ee; }
     .bp-dm-toggle-auth .icon-sun { display:none; }
     .bp-dm-toggle-auth .icon-moon { display:block; }
+
+    /* Light mode (default) */
     body.dm-light { background:#f8fafc !important; }
     body.dm-light .form-content { background:#fff !important;box-shadow:0 8px 40px rgba(0,0,0,0.08) !important; }
-    body.dm-light .bp-dm-toggle-auth { border-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.04);color:#475569; }
-    body.dm-light .bp-dm-toggle-auth .icon-sun { display:block; }
-    body.dm-light .bp-dm-toggle-auth .icon-moon { display:none; }
+
+    /* Dark mode */
+    body.dm-dark { background:#0d1117 !important; }
+    body.dm-dark .form-container.outer { background:#0d1117 !important; }
+    body.dm-dark .form-form { background:#0d1117 !important; }
+    body.dm-dark .form-content {
+        background:#161b2e !important;
+        border-color:rgba(255,255,255,0.07) !important;
+        box-shadow:0 4px 32px rgba(0,0,0,0.45) !important;
+    }
+    body.dm-dark .form-content h1 { color:#e2e8f0 !important; }
+    body.dm-dark .form-content > p { color:#64748b !important; }
+    body.dm-dark .field-wrapper label { color:#94a3b8 !important; }
+    body.dm-dark .field-wrapper input {
+        background:#1e2535 !important;
+        border-color:rgba(255,255,255,0.09) !important;
+        color:#e2e8f0 !important;
+    }
+    body.dm-dark .field-wrapper input:focus {
+        border-color:#4361ee !important;
+        background:#232b3e !important;
+        box-shadow:0 0 0 3px rgba(67,97,238,0.18) !important;
+    }
+    body.dm-dark .field-wrapper svg:not(.feather-eye) { color:#64748b !important; fill:rgba(255,255,255,0.04) !important; }
+    body.dm-dark .field-wrapper svg.feather-eye { color:#64748b !important; fill:rgba(255,255,255,0.04) !important; }
+    body.dm-dark .forgot-pass-link { color:#60a5fa !important; }
+    body.dm-dark .bp-dm-toggle-auth {
+        background:#1e2535;border-color:rgba(255,255,255,0.1);color:#94a3b8;
+    }
+    body.dm-dark .bp-dm-toggle-auth .icon-sun { display:block; }
+    body.dm-dark .bp-dm-toggle-auth .icon-moon { display:none; }
     </style>
     <script>
     (function(){
-      function applyDm(m){ if(m==='light'){document.body.classList.add('dm-light');}else{document.body.classList.remove('dm-light');} localStorage.setItem('bp_theme',m); }
-      document.addEventListener('DOMContentLoaded',function(){
-        applyDm(localStorage.getItem('bp_theme')||'dark');
-        var btn=document.getElementById('bpDmToggleAuth');
-        if(btn) btn.addEventListener('click',function(){ applyDm(document.body.classList.contains('dm-light')?'dark':'light'); });
-      });
+        function applyDm(m){
+            if(m==='dark'){ document.body.classList.add('dm-dark'); document.body.classList.remove('dm-light'); }
+            else { document.body.classList.remove('dm-dark'); document.body.classList.add('dm-light'); }
+            localStorage.setItem('bp_theme', m);
+        }
+        document.addEventListener('DOMContentLoaded', function(){
+            applyDm(localStorage.getItem('bp_theme') || 'light');
+            var btn = document.getElementById('bpDmToggleAuth');
+            if(btn) btn.addEventListener('click', function(){
+                applyDm(document.body.classList.contains('dm-dark') ? 'light' : 'dark');
+            });
+        });
     })();
     </script>
 </head>

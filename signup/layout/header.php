@@ -51,34 +51,29 @@ $sendMail = new emailMessage();
     </script>
 <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
     <style>
-        #Div2{
-            display: none;
-        }
-        #nextShow{
-            display: none;
-        }
-
-        #Div4{
-            display: none;
-        }
-
-        #Button11{
-            display: none;
-        }
-
-        .container-div{
-            height: 100%;
-        }
-
-        canvas {
-            height: 100px;
-            border-style: solid;
-            border-width: 1px;
-            border-color: black;
-        }
-
-
+        #Div2 { display: none; }
+        #nextShow { display: none; }
+        #Div4 { display: none; }
+        #Button11 { display: none; }
+        .container-div { height: 100%; }
+        canvas { height: 100px; border-style: solid; border-width: 1px; border-color: black; }
     </style>
+    <script>
+    (function(){
+        function applyRegTheme(m){
+            if(m==='dark'){ document.body.classList.add('dm-dark'); }
+            else { document.body.classList.remove('dm-dark'); }
+            localStorage.setItem('bp_theme', m);
+        }
+        document.addEventListener('DOMContentLoaded', function(){
+            applyRegTheme(localStorage.getItem('bp_theme') || 'light');
+            var btn = document.getElementById('bpDmToggleReg');
+            if(btn) btn.addEventListener('click', function(){
+                applyRegTheme(document.body.classList.contains('dm-dark') ? 'light' : 'dark');
+            });
+        });
+    })();
+    </script>
 </head>
 
 <body>
